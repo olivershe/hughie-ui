@@ -7,6 +7,7 @@ const HughieUI = () => {
   const [selectedMode, setSelectedMode] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  // OpenAI API key used for GPT-4o requests
   const apiKey = '';
   const messagesEndRef = useRef(null);
 
@@ -58,18 +59,19 @@ const HughieUI = () => {
       else if (selectedMode === 'agent') systemPrompt += 'complex multi-step problem solving as an autonomous agent.';
       else systemPrompt += 'democratizing expertise across legal, financial, and medical domains.';
 
-      const response = await fetch('https://api.anthropic.com/v1/complete', {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
+          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'gpt-4o-2024-08-06',
           stream: true,
-          prompt: `\u0000SYSTEM: ${systemPrompt}\n\u0000USER: ${userMessage}\n\u0000ASSISTANT:`,
-          max_tokens_to_sample: 1024
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage }
+          ]
         })
       });
 
@@ -85,16 +87,19 @@ const HughieUI = () => {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split('data: ');
+        const parts = buffer.split('\n\n');
         buffer = parts.pop();
         for (const part of parts) {
-          if (!part.trim() || part.includes('[DONE]')) continue;
-          const parsed = JSON.parse(part);
-          if (parsed.completion) {
+          if (!part.trim()) continue;
+          const data = part.replace(/^data: /, '');
+          if (data.trim() === '[DONE]') continue;
+          const parsed = JSON.parse(data);
+          const delta = parsed.choices?.[0]?.delta?.content;
+          if (delta) {
             setMessages(prev => {
               const msgs = [...prev];
               const last = msgs[msgs.length - 1];
-              last.content += parsed.completion;
+              last.content += delta;
               return msgs;
             });
           }
