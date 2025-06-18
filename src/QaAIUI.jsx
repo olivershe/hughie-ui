@@ -7,7 +7,6 @@ const QaAIUI = () => {
   const [selectedMode, setSelectedMode] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  // OpenAI API key used for GPT-4o requests
   const apiKey = '';
   const messagesEndRef = useRef(null);
 
@@ -72,6 +71,18 @@ const QaAIUI = () => {
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage }
           ]
+      const response = await fetch('https://api.anthropic.com/v1/complete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          stream: true,
+          prompt: `\u0000SYSTEM: ${systemPrompt}\n\u0000USER: ${userMessage}\n\u0000ASSISTANT:`,
+          max_tokens_to_sample: 1024
         })
       });
 
@@ -87,19 +98,6 @@ const QaAIUI = () => {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split('\n\n');
-        buffer = parts.pop();
-        for (const part of parts) {
-          if (!part.trim()) continue;
-          const data = part.replace(/^data: /, '');
-          if (data.trim() === '[DONE]') continue;
-          const parsed = JSON.parse(data);
-          const delta = parsed.choices?.[0]?.delta?.content;
-          if (delta) {
-            setMessages(prev => {
-              const msgs = [...prev];
-              const last = msgs[msgs.length - 1];
-              last.content += delta;
               return msgs;
             });
           }
