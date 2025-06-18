@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, Menu, Plus, User, Sparkles, Scale, DollarSign, Stethoscope, Cpu, ArrowUp } from 'lucide-react';
 
-const HughieUI = () => {
+const QaAIUI = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [selectedMode, setSelectedMode] = useState(null);
@@ -51,7 +51,7 @@ const HughieUI = () => {
     setMessages(prev => [...prev, { id: Date.now(), type: 'assistant', content: '', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
 
     try {
-      let systemPrompt = 'You are Hughie, a professional AI assistant specializing in ';
+      let systemPrompt = 'You are QaAI, a professional AI assistant specializing in ';
       if (selectedMode === 'legal') systemPrompt += 'legal matters. Provide accurate, professional legal information while noting you cannot provide legal advice.';
       else if (selectedMode === 'finance') systemPrompt += 'financial analysis and insights. Provide data-driven financial information while noting you cannot provide investment advice.';
       else if (selectedMode === 'medical') systemPrompt += 'medical information. Provide accurate health information while noting you cannot diagnose or replace professional medical advice.';
@@ -160,10 +160,10 @@ const HughieUI = () => {
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
               <Menu className="w-5 h-5" />
             </button>
-            <span className="text-sm text-gray-600">Hughie.ai</span>
+            <span className="text-sm text-gray-600">QaAI.ai</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm bg-gray-100 px-3 py-1 rounded-full">Hughie v1</span>
+            <span className="text-sm bg-gray-100 px-3 py-1 rounded-full">QaAI v1</span>
           </div>
         </div>
 
@@ -181,7 +181,7 @@ const HughieUI = () => {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Message Hughie"
+                    placeholder="Message QaAI"
                     className="w-full px-4 py-3 pr-12 rounded-2xl border border-gray-300 focus:border-gray-400 focus:outline-none resize-none text-base bg-white"
                     rows="1"
                     style={{ minHeight: '52px' }}
@@ -260,7 +260,7 @@ const HughieUI = () => {
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder={`Reply to Hughie${selectedMode ? ` (${modes.find(m => m.id === selectedMode)?.label} mode)` : ''}...`}
+                      placeholder={`Reply to QaAI${selectedMode ? ` (${modes.find(m => m.id === selectedMode)?.label} mode)` : ''}...`}
                       className="w-full px-4 py-3 pr-24 rounded-2xl border border-gray-300 focus:border-gray-400 focus:outline-none resize-none text-base bg-white"
                       rows="1"
                       style={{ minHeight: '52px' }}
@@ -279,7 +279,7 @@ const HughieUI = () => {
                   </div>
                   {selectedMode && (
                     <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                      <span>Hughie v1 • {modes.find(m => m.id === selectedMode)?.label} Mode</span>
+                      <span>QaAI v1 • {modes.find(m => m.id === selectedMode)?.label} Mode</span>
                       <button onClick={() => setSelectedMode(null)} className="hover:text-gray-700 transition-colors">Change mode</button>
                     </div>
                   )}
@@ -293,4 +293,4 @@ const HughieUI = () => {
   );
 };
 
-export default HughieUI;
+export default QaAIUI;
