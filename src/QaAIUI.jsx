@@ -58,6 +58,19 @@ const QaAIUI = () => {
       else if (selectedMode === 'agent') systemPrompt += 'complex multi-step problem solving as an autonomous agent.';
       else systemPrompt += 'democratizing expertise across legal, financial, and medical domains.';
 
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-2024-08-06',
+          stream: true,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage }
+          ]
       const response = await fetch('https://api.anthropic.com/v1/complete', {
         method: 'POST',
         headers: {
@@ -85,16 +98,6 @@ const QaAIUI = () => {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split('data: ');
-        buffer = parts.pop();
-        for (const part of parts) {
-          if (!part.trim() || part.includes('[DONE]')) continue;
-          const parsed = JSON.parse(part);
-          if (parsed.completion) {
-            setMessages(prev => {
-              const msgs = [...prev];
-              const last = msgs[msgs.length - 1];
-              last.content += parsed.completion;
               return msgs;
             });
           }
