@@ -131,7 +131,7 @@ const HughieUI = () => {
   };
 
   return (
-    <div className={`flex h-screen transition-colors duration-300 ${themeColors[selectedMode || 'null'].main}`}>
+    <div className={`flex h-screen transition-colors duration-500 ${themeColors[selectedMode || 'null'].main}`}>
       {/* Sidebar */}
       <div className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ${themeColors[selectedMode || 'null'].sidebar} border-r border-gray-200 overflow-hidden`}>
         <div className="p-4">
@@ -155,7 +155,7 @@ const HughieUI = () => {
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-300 ${themeColors[selectedMode || 'null'].main}`}>
+        <div className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${themeColors[selectedMode || 'null'].main}`}>
           <div className="flex items-center gap-3">
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
               <Menu className="w-5 h-5" />
@@ -230,22 +230,31 @@ const HughieUI = () => {
                     </div>
                   )}
                   {messages.map((message, index) => (
-                    <div key={message.id} className={`${message.type === 'user' ? 'flex justify-end mb-8' : 'mb-8'}`}> 
+                    <div
+                      key={message.id}
+                      className={`${message.type === 'user' ? 'flex justify-end mb-8' : 'mb-8'} animate-fade-in`}
+                    >
                       {message.type === 'user' ? (
                         <div className="flex items-start gap-3 justify-end">
-                          <div className="px-4 py-2.5 bg-gray-100 rounded-2xl text-gray-900">{message.content}</div>
+                          <div>
+                            <div className="px-4 py-2.5 bg-gray-100 rounded-2xl text-gray-900">{message.content}</div>
+                            <div className="text-xs text-gray-500 mt-1 text-right">{message.timestamp}</div>
+                          </div>
                           <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
                             <User className="w-5 h-5 text-gray-700" />
                           </div>
                         </div>
                       ) : (
-                        <div className="px-4 py-2.5 bg-white border border-gray-200 rounded-2xl text-gray-900 leading-relaxed">{message.content || (isGenerating && index === messages.length - 1 && (
-                          <div className="flex gap-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                          </div>
-                        ))}</div>
+                        <div>
+                          <div className="px-4 py-2.5 bg-white border border-gray-200 rounded-2xl text-gray-900 leading-relaxed">{message.content || (isGenerating && index === messages.length - 1 && (
+                            <div className="flex gap-1">
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                            </div>
+                          ))}</div>
+                          <div className="text-xs text-gray-500 mt-1">{message.timestamp}</div>
+                        </div>
                       )}
                     </div>
                   ))}
