@@ -1,6 +1,6 @@
 import React from 'react';
-import HughieUI from './HughieUI';
+import QaAIUI from './QaAIUI';
 
 export default function App() {
-  return <HughieUI />;
+  return <QaAIUI />;
 }

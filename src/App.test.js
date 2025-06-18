@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
-
-test('renders the Hughie header', () => {
+ 
+test('renders QaAI landing screen', () => {
   render(<App />);
-  const headerElement = screen.getByText(/hughie\.ai/i);
-  expect(headerElement).toBeInTheDocument();
+  const tagline = screen.getByText(/Democratising Expertise/i);
+  expect(tagline).toBeInTheDocument();
 });
