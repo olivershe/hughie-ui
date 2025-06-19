@@ -64,6 +64,7 @@ const QaAIUI = () => {
 
   const streamResponse = async (userMessage) => {
     setIsGenerating(true);
+   
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const replyId = Date.now();
     const placeholder = { id: replyId, type: 'assistant', content: '', timestamp };
@@ -75,6 +76,7 @@ const QaAIUI = () => {
           : c
       )
     );
+
 
     try {
       let systemPrompt = 'You are QaAI, a professional AI assistant specializing in ';
