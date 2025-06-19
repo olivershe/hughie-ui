@@ -1,11 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Send,
   Paperclip,
   Menu,
   Plus,
   User,
-  Sparkles,
   Scale,
   DollarSign,
   Stethoscope,
@@ -57,7 +55,7 @@ const QaAIUI = () => {
       setConversations([conv]);
       setCurrentConversationId(id);
     }
-  }, []);
+  }, [conversations, currentConversationId]);
 
   useEffect(() => {
     localStorage.setItem('conversations', JSON.stringify(conversations));
@@ -280,13 +278,13 @@ const QaAIUI = () => {
                   )}
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100">
-                  <button onClick={(e) => { e.stopPropagation(); const title = prompt('Rename conversation', conv.title); if (title) setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, title } : c)); }} className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded">
+                  <button onClick={(e) => { e.stopPropagation(); const title = window.prompt('Rename conversation', conv.title); if (title) setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, title } : c)); }} className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded">
                     <Edit3 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm('Delete conversation?')) {
+                      if (window.confirm('Delete conversation?')) {
                         setConversations(prev => {
                           const arr = prev.filter(c => c.id !== conv.id);
                           if (currentConversationId === conv.id) {
