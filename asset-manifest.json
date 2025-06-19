@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/hughie-ui/static/css/main.f1fab413.css",
-    "main.js": "/hughie-ui/static/js/main.24554d9c.js",
+    "main.css": "/hughie-ui/static/css/main.79668dde.css",
+    "main.js": "/hughie-ui/static/js/main.f141061c.js",
     "index.html": "/hughie-ui/index.html",
-    "main.f1fab413.css.map": "/hughie-ui/static/css/main.f1fab413.css.map",
-    "main.24554d9c.js.map": "/hughie-ui/static/js/main.24554d9c.js.map"
+    "main.79668dde.css.map": "/hughie-ui/static/css/main.79668dde.css.map",
+    "main.f141061c.js.map": "/hughie-ui/static/js/main.f141061c.js.map"
   },
   "entrypoints": [
-    "static/css/main.f1fab413.css",
-    "static/js/main.24554d9c.js"
+    "static/css/main.79668dde.css",
+    "static/js/main.f141061c.js"
   ]
 }
