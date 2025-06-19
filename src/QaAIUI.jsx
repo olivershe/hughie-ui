@@ -1,5 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, Menu, Plus, User, Sparkles, Scale, DollarSign, Stethoscope, Cpu, ArrowUp } from 'lucide-react';
+import {
+  Send,
+  Paperclip,
+  Menu,
+  Plus,
+  User,
+  Sparkles,
+  Scale,
+  DollarSign,
+  Stethoscope,
+  Cpu,
+  ArrowUp,
+  Edit3,
+  Trash2,
+  Sun,
+  Moon
+} from 'lucide-react';
 
 const QaAIUI = () => {
   const [messages, setMessages] = useState([]);
@@ -7,6 +23,10 @@ const QaAIUI = () => {
   const [selectedMode, setSelectedMode] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
   const apiKey = '';
   const messagesEndRef = useRef(null);
 
@@ -18,8 +38,13 @@ const QaAIUI = () => {
 
   // Add global font styling
   useEffect(() => {
-    document.body.style.fontFamily = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif';
+    document.body.style.fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif';
   }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
 
   useEffect(() => {
     const first = conversations[0];
@@ -47,11 +72,11 @@ const QaAIUI = () => {
 
   // Theme colors for main and sidebar
   const themeColors = {
-    null: { main: 'bg-white', sidebar: 'bg-gray-50' },
-    legal: { main: 'bg-green-50', sidebar: 'bg-green-100' },
-    finance: { main: 'bg-blue-50', sidebar: 'bg-blue-100' },
-    medical: { main: 'bg-red-50', sidebar: 'bg-red-100' },
-    agent: { main: 'bg-purple-50', sidebar: 'bg-purple-100' }
+    null: { main: 'bg-white dark:bg-gray-900', sidebar: 'bg-gray-50 dark:bg-gray-800' },
+    legal: { main: 'bg-green-50 dark:bg-gray-900', sidebar: 'bg-green-100 dark:bg-gray-800' },
+    finance: { main: 'bg-blue-50 dark:bg-gray-900', sidebar: 'bg-blue-100 dark:bg-gray-800' },
+    medical: { main: 'bg-red-50 dark:bg-gray-900', sidebar: 'bg-red-100 dark:bg-gray-800' },
+    agent: { main: 'bg-purple-50 dark:bg-gray-900', sidebar: 'bg-purple-100 dark:bg-gray-800' }
   };
 
   const scrollToBottom = () => {
@@ -173,7 +198,13 @@ const QaAIUI = () => {
     setConversations(prev =>
       prev.map(c =>
         c.id === currentConversationId
-          ? { ...c, messages: [...(c.messages || []), newMessage], title: c.messages?.length ? c.title : inputValue.trim().slice(0, 20), time: timestamp }
+          ? {
+              ...c,
+              messages: [...(c.messages || []), newMessage],
+              title: c.messages?.length ? c.title : inputValue.trim().slice(0, 20),
+              time: timestamp,
+              mode: c.mode || selectedMode
+            }
           : c
       )
     );
@@ -199,7 +230,8 @@ const QaAIUI = () => {
       id,
       title: 'New chat',
       messages: [],
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      mode: selectedMode
     };
     setConversations(prev => [newConv, ...prev]);
     setCurrentConversationId(id);
@@ -214,9 +246,12 @@ const QaAIUI = () => {
   };
 
   return (
-    <div className={`flex h-screen transition-colors duration-500 ${themeColors[selectedMode || 'null'].main}`}>
+    <div
+      className={`flex h-screen transition-colors duration-500 ${themeColors[selectedMode || 'null'].main} dark:bg-gray-900`}
+      style={{ background: 'var(--bg-gradient)' }}
+    >
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ${themeColors[selectedMode || 'null'].sidebar} border-r border-gray-200 overflow-hidden`}>
+      <div className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ${themeColors[selectedMode || 'null'].sidebar} border-r border-gray-200 overflow-hidden dark:bg-gray-800`}>
         <div className="p-4">
           <button onClick={handleNewChat} className="flex items-center gap-2 w-full p-3 hover:bg-gray-200 rounded-lg transition-colors">
             <Plus className="w-4 h-4" />
@@ -224,21 +259,51 @@ const QaAIUI = () => {
           </button>
         </div>
         <div className="px-4 pb-2">
-          <h3 className="text-xs font-medium text-gray-600">Today</h3>
+          <h3 className="text-xs font-medium text-gray-600 dark:text-gray-400">Today</h3>
         </div>
         <div className="overflow-y-auto">
           {conversations.map(conv => (
             <div
               key={conv.id}
-              onClick={() => openConversation(conv.id)}
-              className="px-4 py-2 hover:bg-gray-200 cursor-pointer transition-colors"
+              className="px-4 py-2 hover:bg-gray-200 cursor-pointer transition-colors group"
             >
-              <div className="text-sm font-medium">{conv.title}</div>
-              {conv.messages && conv.messages.length > 0 && (
-                <div className="text-xs text-gray-500">
-                  {conv.messages[conv.messages.length - 1].content.slice(0, 30)}
+              <div className="flex items-center justify-between" onClick={() => openConversation(conv.id)}>
+                <div>
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    {conv.mode && React.createElement(modes.find(m => m.id === conv.mode)?.icon, { className: 'w-3.5 h-3.5 text-gray-600 dark:text-gray-400' })}
+                    {conv.title}
+                  </div>
+                  {conv.messages && conv.messages.length > 0 && (
+                    <div className="text-xs text-gray-500">
+                      {conv.messages[conv.messages.length - 1].content.slice(0, 30)}
+                    </div>
+                  )}
                 </div>
-              )}
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100">
+                  <button onClick={(e) => { e.stopPropagation(); const title = prompt('Rename conversation', conv.title); if (title) setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, title } : c)); }} className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded">
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Delete conversation?')) {
+                        setConversations(prev => {
+                          const arr = prev.filter(c => c.id !== conv.id);
+                          if (currentConversationId === conv.id) {
+                            setMessages([]);
+                            setCurrentConversationId(arr[0]?.id || null);
+                          }
+                          return arr;
+                        });
+                      }
+                    }}
+                    className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              {conv.time && <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{conv.time}</div>}
             </div>
           ))}
         </div>
@@ -247,24 +312,30 @@ const QaAIUI = () => {
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${themeColors[selectedMode || 'null'].main}`}>
+        <div className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${themeColors[selectedMode || 'null'].main} dark:border-gray-700`}> 
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
               <Menu className="w-5 h-5" />
             </button>
-            <span className="text-sm text-gray-600">QaAI.ai</span>
+            <span className="text-sm text-gray-600 dark:text-gray-100">QaAI.ai</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm bg-gray-100 px-3 py-1 rounded-full">QaAI v1</span>
+            <span className="text-sm bg-gray-100 dark:bg-gray-700 dark:text-gray-100 px-3 py-1 rounded-full">QaAI v1</span>
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </div>
         </div>
 
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto min-h-full">
+            <div className="flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto min-h-full animate-fade-in">
               <h1 className="text-3xl font-normal text-gray-900 mb-8" style={{ fontFamily: 'Georgia, Times, serif' }}>Good afternoon, Oliver</h1>
-              <p className="text-gray-600 text-lg mb-12" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+              <p className="text-gray-600 dark:text-gray-300 text-lg mb-12" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif', letterSpacing: '-0.02em' }}>
                 How can I help you today?
               </p>
               <div className="w-full max-w-xl mb-6">
@@ -274,19 +345,19 @@ const QaAIUI = () => {
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Message QaAI"
-                    className="w-full px-4 py-3 pr-12 rounded-2xl border border-gray-300 focus:border-gray-400 focus:outline-none resize-none text-base bg-white"
+                    className="w-full px-4 py-3 pr-12 rounded-2xl border border-gray-300 focus:border-gray-400 focus:outline-none resize-none text-base bg-white dark:bg-gray-700 dark:text-gray-100"
                     rows="1"
                     style={{ minHeight: '52px' }}
                     disabled={isGenerating}
                   />
                   <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                    <button className="p-1.5 hover:bg-gray-100 rounded-md transition-colors">
+                    <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors">
                       <Paperclip className="w-5 h-5 text-gray-400" />
                     </button>
                     <button onClick={handleSendMessage} disabled={!inputValue.trim() || isGenerating} className={`p-1.5 rounded-md transition-colors ${
                       inputValue.trim() && !isGenerating ? 'bg-gray-900 hover:bg-gray-800 text-white' : 'hover:bg-gray-100'
                     }`}>
-                      <ArrowUp className={`w-5 h-5 ${inputValue.trim() && !isGenerating ? 'text-white' : 'text-gray-400'}`} />
+                      <ArrowUp className={`w-5 h-5 ${inputValue.trim() && !isGenerating ? 'text-white' : 'text-gray-400 dark:text-gray-300'}`} />
                     </button>
                   </div>
                 </div>
@@ -297,10 +368,10 @@ const QaAIUI = () => {
                     key={mode.id}
                     onClick={() => handleModeSelect(mode.id)}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all text-sm ${
-                      selectedMode === mode.id ? 'border-gray-400 bg-gray-100 text-gray-700' : 'border-gray-300 hover:bg-gray-50 text-gray-700'
+                      selectedMode === mode.id ? 'border-gray-400 bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-100' : 'border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-100'
                     }`}
                   >
-                    <mode.icon className="w-4 h-4 text-gray-600" />
+                    <mode.icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                     <span>{mode.label}</span>
                   </button>
                 ))}
@@ -319,9 +390,9 @@ const QaAIUI = () => {
                 <div className="max-w-3xl mx-auto px-4 py-6">
                   {selectedMode && (
                     <div className="text-center mb-6">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full">
-                        {React.createElement(modes.find(m => m.id === selectedMode).icon, { className: 'w-4 h-4 text-gray-600' })}
-                        <span className="text-sm text-gray-600">{modes.find(m => m.id === selectedMode)?.label} Mode</span>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full">
+                        {React.createElement(modes.find(m => m.id === selectedMode).icon, { className: 'w-4 h-4 text-gray-600 dark:text-gray-300' })}
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{modes.find(m => m.id === selectedMode)?.label} Mode</span>
                       </div>
                     </div>
                   )}
@@ -333,7 +404,7 @@ const QaAIUI = () => {
                       {message.type === 'user' ? (
                         <div className="flex items-start gap-3 justify-end">
                           <div>
-                            <div className="px-4 py-2.5 bg-gray-100 rounded-2xl text-gray-900">{message.content}</div>
+                            <div className="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 rounded-2xl text-gray-900 dark:text-gray-100">{message.content}</div>
                             <div className="text-xs text-gray-500 mt-1 text-right">{message.timestamp}</div>
                           </div>
                           <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
@@ -342,7 +413,7 @@ const QaAIUI = () => {
                         </div>
                       ) : (
                         <div>
-                          <div className="px-4 py-2.5 bg-white border border-gray-200 rounded-2xl text-gray-900 leading-relaxed">{message.content || (isGenerating && index === messages.length - 1 && (
+                          <div className={`px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? 'blinking-cursor' : ''}`}>{message.content || (isGenerating && index === messages.length - 1 && (
                             <div className="flex gap-1">
                               <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                               <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -358,7 +429,7 @@ const QaAIUI = () => {
                 </div>
               </div>
               {/* Input area at bottom */}
-              <div className="border-t border-gray-200 bg-white px-4 py-4">
+              <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-4">
                 <div className="max-w-3xl mx-auto">
                   <div className="relative">
                     <textarea
@@ -366,26 +437,26 @@ const QaAIUI = () => {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder={`Reply to QaAI${selectedMode ? ` (${modes.find(m => m.id === selectedMode)?.label} mode)` : ''}...`}
-                      className="w-full px-4 py-3 pr-24 rounded-2xl border border-gray-300 focus:border-gray-400 focus:outline-none resize-none text-base bg-white"
+                      className="w-full px-4 py-3 pr-24 rounded-2xl border border-gray-300 focus:border-gray-400 focus:outline-none resize-none text-base bg-white dark:bg-gray-700 dark:text-gray-100"
                       rows="1"
                       style={{ minHeight: '52px' }}
                       disabled={isGenerating}
                     />
                     <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                      <button className="p-1.5 hover:bg-gray-100 rounded-md transition-colors">
+                      <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors">
                         <Paperclip className="w-5 h-5 text-gray-400" />
                       </button>
                       <button onClick={handleSendMessage} disabled={!inputValue.trim() || isGenerating} className={`p-1.5 rounded-md transition-colors ${
-                        inputValue.trim() && !isGenerating ? 'bg-gray-900 hover:bg-gray-800 text-white' : 'hover:bg-gray-100'
+                        inputValue.trim() && !isGenerating ? 'bg-gray-900 hover:bg-gray-800 text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}>
-                        <ArrowUp className={`w-5 h-5 ${inputValue.trim() && !isGenerating ? 'text-white' : 'text-gray-400'}`} />
+                        <ArrowUp className={`w-5 h-5 ${inputValue.trim() && !isGenerating ? 'text-white' : 'text-gray-400 dark:text-gray-300'}`} />
                       </button>
                     </div>
                   </div>
                   {selectedMode && (
                     <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
                       <span>QaAI v1 • {modes.find(m => m.id === selectedMode)?.label} Mode</span>
-                      <button onClick={() => setSelectedMode(null)} className="hover:text-gray-700 transition-colors">Change mode</button>
+                      <button onClick={() => setSelectedMode(null)} className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Change mode</button>
                     </div>
                   )}
                 </div>
