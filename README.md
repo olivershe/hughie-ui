@@ -23,13 +23,16 @@ styles, and fallback styles are defined for `html.dark` in
 
 ### API Key Configuration
 
-The application expects an OpenAI API key to make requests. Create a `.env.local` file in the project root and add:
+The application expects an OpenAI API key to make requests. Copy `.env.example` to
+`.env.local` and then set your key:
 
-```
-REACT_APP_OPENAI_API_KEY=your-openai-key
+```bash
+cp .env.example .env.local
 ```
 
-Restart the development server after editing the file.
+Edit `.env.local` and replace the placeholder value for
+`REACT_APP_OPENAI_API_KEY`. Restart the development server after editing the
+file.
 
 ### `npm test`
 
