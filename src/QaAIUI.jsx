@@ -241,6 +241,7 @@ const QaAIUI = () => {
     if (!conv) return;
     setCurrentConversationId(id);
     setMessages(conv.messages || []);
+    setSelectedMode(conv.mode || null);
   };
 
   return (
