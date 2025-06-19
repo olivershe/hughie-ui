@@ -12,7 +12,8 @@ import {
   Edit3,
   Trash2,
   Sun,
-  Moon
+  Moon,
+  Bug
 } from 'lucide-react';
 
 const legalInstructions = `You are a legal assistant AI built to help users clarify vague legal questions and provide structured, jurisdiction-specific answers. Your task is to:
@@ -71,12 +72,18 @@ const QaAIUI = () => {
   });
   const apiKey = process.env.REACT_APP_OPENAI_API_KEY || '';
   const messagesEndRef = useRef(null);
+  const [errorLogs, setErrorLogs] = useState([]);
+  const [showErrorLogs, setShowErrorLogs] = useState(false);
 
   useEffect(() => {
     if (!apiKey) {
       console.error(
         'OpenAI API key is missing. Set REACT_APP_OPENAI_API_KEY in your environment.'
       );
+      setErrorLogs(prev => [
+        ...prev,
+        { message: 'OpenAI API key is missing. Set REACT_APP_OPENAI_API_KEY in your environment.' }
+      ]);
     }
   }, [apiKey]);
 
@@ -191,6 +198,7 @@ const QaAIUI = () => {
           errorBody = await response.text();
         } catch (readErr) {
           console.error('Failed to read error response body', readErr);
+          setErrorLogs(prev => [...prev, { message: 'Failed to read error response body', detail: readErr.toString() }]);
         }
         const err = new Error('API request failed');
         err.status = response.status;
@@ -238,6 +246,15 @@ const QaAIUI = () => {
         statusText: e.statusText,
         body: e.body
       });
+      setErrorLogs(prev => [
+        ...prev,
+        {
+          message: e.message,
+          status: e.status,
+          statusText: e.statusText,
+          body: e.body
+        }
+      ]);
       let errorMsg = 'Something went wrong, please try again later.';
       if (e.status === 401) {
         errorMsg = 'Authentication failed. Please check your API key.';
@@ -400,6 +417,12 @@ const QaAIUI = () => {
             >
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
+            <button
+              onClick={() => setShowErrorLogs(!showErrorLogs)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <Bug className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
@@ -538,6 +561,23 @@ const QaAIUI = () => {
           )}
         </div>
       </div>
+      {showErrorLogs && (
+        <div className="fixed bottom-0 right-0 w-80 max-h-60 overflow-y-auto bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 p-3 text-xs shadow-lg">
+          <div className="flex justify-between mb-2">
+            <span className="font-medium">Error Logs</span>
+            <button onClick={() => setShowErrorLogs(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+          </div>
+          {errorLogs.length === 0 ? (
+            <div>No errors logged</div>
+          ) : (
+            errorLogs.map((log, idx) => (
+              <pre key={idx} className="whitespace-pre-wrap mb-2">
+                {JSON.stringify(log, null, 2)}
+              </pre>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };
