@@ -34,11 +34,6 @@ const QaAIUI = () => {
   });
   const [currentConversationId, setCurrentConversationId] = useState(null);
 
-  // Add global font styling
-  useEffect(() => {
-    document.body.style.fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif';
-  }, []);
-
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
