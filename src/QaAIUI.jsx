@@ -10,16 +10,33 @@ const QaAIUI = () => {
   const apiKey = '';
   const messagesEndRef = useRef(null);
 
-  const [conversations, setConversations] = useState([
-    { id: 1, title: 'Legal document review', preview: 'Can you help me review this contract...', time: '2m ago' },
-    { id: 2, title: 'Financial analysis', preview: 'I need to analyze Q4 revenue...', time: '1h ago' },
-    { id: 3, title: 'Medical consultation', preview: 'What are the symptoms of...', time: '3h ago' }
-  ]);
+  const [conversations, setConversations] = useState(() => {
+    const saved = localStorage.getItem('conversations');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [currentConversationId, setCurrentConversationId] = useState(null);
 
   // Add global font styling
   useEffect(() => {
     document.body.style.fontFamily = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif';
   }, []);
+
+  useEffect(() => {
+    const first = conversations[0];
+    if (first && currentConversationId === null) {
+      setCurrentConversationId(first.id);
+      setMessages(first.messages || []);
+    } else if (!first && currentConversationId === null) {
+      const id = Date.now();
+      const conv = { id, title: 'New chat', messages: [], time: '' };
+      setConversations([conv]);
+      setCurrentConversationId(id);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('conversations', JSON.stringify(conversations));
+  }, [conversations]);
 
   const modes = [
     { id: 'legal', label: 'Legal', icon: Scale },
@@ -47,22 +64,37 @@ const QaAIUI = () => {
 
   const streamResponse = async (userMessage) => {
     setIsGenerating(true);
-    // add placeholder assistant message
-    setMessages(prev => [...prev, { id: Date.now(), type: 'assistant', content: '', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const replyId = Date.now();
+    const placeholder = { id: replyId, type: 'assistant', content: '', timestamp };
+    setMessages(prev => [...prev, placeholder]);
+    setConversations(prev =>
+      prev.map(c =>
+        c.id === currentConversationId
+          ? { ...c, messages: [...(c.messages || []), placeholder], time: timestamp }
+          : c
+      )
+    );
 
     try {
       let systemPrompt = 'You are QaAI, a professional AI assistant specializing in ';
-      if (selectedMode === 'legal') systemPrompt += 'legal matters. Provide accurate, professional legal information while noting you cannot provide legal advice.';
-      else if (selectedMode === 'finance') systemPrompt += 'financial analysis and insights. Provide data-driven financial information while noting you cannot provide investment advice.';
-      else if (selectedMode === 'medical') systemPrompt += 'medical information. Provide accurate health information while noting you cannot diagnose or replace professional medical advice.';
-      else if (selectedMode === 'agent') systemPrompt += 'complex multi-step problem solving as an autonomous agent.';
+      if (selectedMode === 'legal')
+        systemPrompt += 'legal matters. Provide accurate, professional legal information while noting you cannot provide legal advice.';
+      else if (selectedMode === 'finance')
+        systemPrompt +=
+          'financial analysis and insights. Provide data-driven financial information while noting you cannot provide investment advice.';
+      else if (selectedMode === 'medical')
+        systemPrompt +=
+          'medical information. Provide accurate health information while noting you cannot diagnose or replace professional medical advice.';
+      else if (selectedMode === 'agent')
+        systemPrompt += 'complex multi-step problem solving as an autonomous agent.';
       else systemPrompt += 'democratizing expertise across legal, financial, and medical domains.';
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          Authorization: `Bearer ${apiKey}`
         },
         body: JSON.stringify({
           model: 'gpt-4o-2024-08-06',
@@ -71,18 +103,6 @@ const QaAIUI = () => {
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage }
           ]
-      const response = await fetch('https://api.anthropic.com/v1/complete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          stream: true,
-          prompt: `\u0000SYSTEM: ${systemPrompt}\n\u0000USER: ${userMessage}\n\u0000ASSISTANT:`,
-          max_tokens_to_sample: 1024
         })
       });
 
@@ -98,17 +118,46 @@ const QaAIUI = () => {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          const cleaned = line.trim();
+          if (!cleaned || cleaned === 'data: [DONE]') continue;
+          const json = JSON.parse(cleaned.replace(/^data: /, ''));
+          const content = json.choices?.[0]?.delta?.content;
+          if (content) {
+            setMessages(prev => {
+              const msgs = [...prev];
+              msgs[msgs.length - 1].content += content;
               return msgs;
             });
+            setConversations(prev =>
+              prev.map(c => {
+                if (c.id !== currentConversationId) return c;
+                const msgs = [...(c.messages || [])];
+                msgs[msgs.length - 1].content += content;
+                return { ...c, messages: msgs };
+              })
+            );
           }
         }
       }
     } catch (e) {
       setMessages(prev => {
         const msgs = [...prev];
-        msgs[msgs.length - 1].content = 'I apologize, but I encountered an error. Please check your API key and try again.';
+        msgs[msgs.length - 1].content =
+          'I apologize, but I encountered an error. Please check your API key and try again.';
         return msgs;
       });
+      setConversations(prev =>
+        prev.map(c => {
+          if (c.id !== currentConversationId) return c;
+          const msgs = [...(c.messages || [])];
+          msgs[msgs.length - 1].content =
+            'I apologize, but I encountered an error. Please check your API key and try again.';
+          return { ...c, messages: msgs };
+        })
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -116,7 +165,16 @@ const QaAIUI = () => {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isGenerating) return;
-    setMessages(prev => [...prev, { id: Date.now(), type: 'user', content: inputValue.trim(), timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const newMessage = { id: Date.now(), type: 'user', content: inputValue.trim(), timestamp };
+    setMessages(prev => [...prev, newMessage]);
+    setConversations(prev =>
+      prev.map(c =>
+        c.id === currentConversationId
+          ? { ...c, messages: [...(c.messages || []), newMessage], title: c.messages?.length ? c.title : inputValue.trim().slice(0, 20), time: timestamp }
+          : c
+      )
+    );
     const message = inputValue.trim();
     setInputValue('');
     await streamResponse(message);
@@ -133,12 +191,32 @@ const QaAIUI = () => {
     setSelectedMode(modeId === selectedMode ? null : modeId);
   };
 
+  const handleNewChat = () => {
+    const id = Date.now();
+    const newConv = {
+      id,
+      title: 'New chat',
+      messages: [],
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setConversations(prev => [newConv, ...prev]);
+    setCurrentConversationId(id);
+    setMessages([]);
+  };
+
+  const openConversation = (id) => {
+    const conv = conversations.find(c => c.id === id);
+    if (!conv) return;
+    setCurrentConversationId(id);
+    setMessages(conv.messages || []);
+  };
+
   return (
     <div className={`flex h-screen transition-colors duration-500 ${themeColors[selectedMode || 'null'].main}`}>
       {/* Sidebar */}
       <div className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ${themeColors[selectedMode || 'null'].sidebar} border-r border-gray-200 overflow-hidden`}>
         <div className="p-4">
-          <button className="flex items-center gap-2 w-full p-3 hover:bg-gray-200 rounded-lg transition-colors">
+          <button onClick={handleNewChat} className="flex items-center gap-2 w-full p-3 hover:bg-gray-200 rounded-lg transition-colors">
             <Plus className="w-4 h-4" />
             <span className="text-sm">New chat</span>
           </button>
@@ -148,8 +226,17 @@ const QaAIUI = () => {
         </div>
         <div className="overflow-y-auto">
           {conversations.map(conv => (
-            <div key={conv.id} className="px-4 py-2 hover:bg-gray-200 cursor-pointer transition-colors">
-              <div className="text-sm">{conv.title}</div>
+            <div
+              key={conv.id}
+              onClick={() => openConversation(conv.id)}
+              className="px-4 py-2 hover:bg-gray-200 cursor-pointer transition-colors"
+            >
+              <div className="text-sm font-medium">{conv.title}</div>
+              {conv.messages && conv.messages.length > 0 && (
+                <div className="text-xs text-gray-500">
+                  {conv.messages[conv.messages.length - 1].content.slice(0, 30)}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -216,7 +303,11 @@ const QaAIUI = () => {
                   </button>
                 ))}
               </div>
-              <p className="text-gray-500 text-sm mt-12" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif', letterSpacing: '0.01em' }}>
+              <p
+                data-testid="tagline"
+                className="text-gray-500 text-sm mt-12"
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif', letterSpacing: '0.01em' }}
+              >
                 Democratising Expertise
               </p>
             </div>
