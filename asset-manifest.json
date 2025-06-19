@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/hughie-ui/static/css/main.66f71dac.css",
+    "main.js": "/hughie-ui/static/js/main.15793da5.js",
+    "index.html": "/hughie-ui/index.html",
+    "main.66f71dac.css.map": "/hughie-ui/static/css/main.66f71dac.css.map",
+    "main.15793da5.js.map": "/hughie-ui/static/js/main.15793da5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.66f71dac.css",
+    "static/js/main.15793da5.js"
+  ]
+}
