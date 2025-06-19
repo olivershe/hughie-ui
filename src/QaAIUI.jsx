@@ -174,7 +174,9 @@ const QaAIUI = () => {
       });
 
       if (!response.ok) {
-        throw new Error('API request failed');
+        const err = new Error('API request failed');
+        err.status = response.status;
+        throw err;
       }
 
       const reader = response.body.getReader();
@@ -210,18 +212,23 @@ const QaAIUI = () => {
         }
       }
     } catch (e) {
+      console.error(e);
+      let errorMsg = 'Something went wrong, please try again later.';
+      if (e.status === 401) {
+        errorMsg = 'Authentication failed. Please check your API key.';
+      } else if (e.status === 429) {
+        errorMsg = 'Rate limit exceeded. Please wait before trying again.';
+      }
       setMessages(prev => {
         const msgs = [...prev];
-        msgs[msgs.length - 1].content =
-          'I apologize, but I encountered an error. Please check your API key and try again.';
+        msgs[msgs.length - 1].content = errorMsg;
         return msgs;
       });
       setConversations(prev =>
         prev.map(c => {
           if (c.id !== currentConversationId) return c;
           const msgs = [...(c.messages || [])];
-          msgs[msgs.length - 1].content =
-            'I apologize, but I encountered an error. Please check your API key and try again.';
+          msgs[msgs.length - 1].content = errorMsg;
           return { ...c, messages: msgs };
         })
       );
