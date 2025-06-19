@@ -21,6 +21,16 @@ Click the sun/moon icon in the app header to toggle dark mode. The
 styles, and fallback styles are defined for `html.dark` in
 `src/index.css`.
 
+### API Key Configuration
+
+The application expects an OpenAI API key to make requests. Create a `.env.local` file in the project root and add:
+
+```
+REACT_APP_OPENAI_API_KEY=your-openai-key
+```
+
+Restart the development server after editing the file.
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\

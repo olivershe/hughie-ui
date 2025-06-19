@@ -15,6 +15,50 @@ import {
   Moon
 } from 'lucide-react';
 
+const legalInstructions = `You are a legal assistant AI built to help users clarify vague legal questions and provide structured, jurisdiction-specific answers. Your task is to:
+
+1. Reformulate vague or informal legal queries into clear, formal prompts ("Refined Prompt").
+2. Ask 2–4 clarifying questions to gather missing information required to answer the legal query.
+   - For each, explain why the question matters legally.
+3. Present a final "Model-Ready Prompt Template" with placeholders like {tenancy_type}, {notice_status}, etc.
+4. Ask the user to provide answers to the follow-up questions.
+
+Once the user provides answers to each follow-up, you must:
+
+5. Automatically fill the placeholders in the prompt template using their responses.
+6. Use that completed prompt to generate a final legal response based on UK law.
+
+Use the following format:
+
+---
+**Refined Prompt:**
+<Your reformulated legal question>
+
+**Follow-up Questions and Reasoning:**
+1. <Question 1>
+   - Reasoning: <Why this matters>
+... (2–4 questions)
+
+**Model-Ready Prompt Template:**
+<Prompt with placeholders like {x}, {y}, etc.>
+
+<Wait for user responses here.>
+
+Once the user provides answers:
+---
+**Final Filled Prompt:**
+<Inject user responses into the template here>
+
+**Answer:**
+<Now provide the legal answer based on the final filled prompt>
+---
+
+Additional rules:
+- Assume UK jurisdiction unless otherwise stated.
+- Always clarify before answering vague questions.
+- Do not hallucinate laws — reason from first legal principles.
+- Be neutral and accurate in tone.`;
+
 const QaAIUI = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -25,7 +69,7 @@ const QaAIUI = () => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
-  const apiKey = '';
+  const apiKey = process.env.REACT_APP_OPENAI_API_KEY || '';
   const messagesEndRef = useRef(null);
 
   const [conversations, setConversations] = useState(() => {
@@ -97,18 +141,21 @@ const QaAIUI = () => {
 
 
     try {
-      let systemPrompt = 'You are QaAI, a professional AI assistant specializing in ';
-      if (selectedMode === 'legal')
-        systemPrompt += 'legal matters. Provide accurate, professional legal information while noting you cannot provide legal advice.';
-      else if (selectedMode === 'finance')
-        systemPrompt +=
-          'financial analysis and insights. Provide data-driven financial information while noting you cannot provide investment advice.';
-      else if (selectedMode === 'medical')
-        systemPrompt +=
-          'medical information. Provide accurate health information while noting you cannot diagnose or replace professional medical advice.';
-      else if (selectedMode === 'agent')
-        systemPrompt += 'complex multi-step problem solving as an autonomous agent.';
-      else systemPrompt += 'democratizing expertise across legal, financial, and medical domains.';
+      let systemPrompt = '';
+      if (selectedMode === 'legal') {
+        systemPrompt = legalInstructions;
+      } else {
+        systemPrompt = 'You are QaAI, a professional AI assistant specializing in ';
+        if (selectedMode === 'finance')
+          systemPrompt +=
+            'financial analysis and insights. Provide data-driven financial information while noting you cannot provide investment advice.';
+        else if (selectedMode === 'medical')
+          systemPrompt +=
+            'medical information. Provide accurate health information while noting you cannot diagnose or replace professional medical advice.';
+        else if (selectedMode === 'agent')
+          systemPrompt += 'complex multi-step problem solving as an autonomous agent.';
+        else systemPrompt += 'democratizing expertise across legal, financial, and medical domains.';
+      }
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
