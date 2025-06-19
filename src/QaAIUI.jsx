@@ -48,21 +48,35 @@ const QaAIUI = () => {
   const streamResponse = async (userMessage) => {
     setIsGenerating(true);
     // add placeholder assistant message
-    setMessages(prev => [...prev, { id: Date.now(), type: 'assistant', content: '', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    setMessages(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        type: 'assistant',
+        content: '',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
 
     try {
       let systemPrompt = 'You are QaAI, a professional AI assistant specializing in ';
-      if (selectedMode === 'legal') systemPrompt += 'legal matters. Provide accurate, professional legal information while noting you cannot provide legal advice.';
-      else if (selectedMode === 'finance') systemPrompt += 'financial analysis and insights. Provide data-driven financial information while noting you cannot provide investment advice.';
-      else if (selectedMode === 'medical') systemPrompt += 'medical information. Provide accurate health information while noting you cannot diagnose or replace professional medical advice.';
-      else if (selectedMode === 'agent') systemPrompt += 'complex multi-step problem solving as an autonomous agent.';
+      if (selectedMode === 'legal')
+        systemPrompt += 'legal matters. Provide accurate, professional legal information while noting you cannot provide legal advice.';
+      else if (selectedMode === 'finance')
+        systemPrompt +=
+          'financial analysis and insights. Provide data-driven financial information while noting you cannot provide investment advice.';
+      else if (selectedMode === 'medical')
+        systemPrompt +=
+          'medical information. Provide accurate health information while noting you cannot diagnose or replace professional medical advice.';
+      else if (selectedMode === 'agent')
+        systemPrompt += 'complex multi-step problem solving as an autonomous agent.';
       else systemPrompt += 'democratizing expertise across legal, financial, and medical domains.';
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          Authorization: `Bearer ${apiKey}`
         },
         body: JSON.stringify({
           model: 'gpt-4o-2024-08-06',
@@ -71,18 +85,6 @@ const QaAIUI = () => {
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage }
           ]
-      const response = await fetch('https://api.anthropic.com/v1/complete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          stream: true,
-          prompt: `\u0000SYSTEM: ${systemPrompt}\n\u0000USER: ${userMessage}\n\u0000ASSISTANT:`,
-          max_tokens_to_sample: 1024
         })
       });
 
@@ -98,6 +100,17 @@ const QaAIUI = () => {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          const cleaned = line.trim();
+          if (!cleaned || cleaned === 'data: [DONE]') continue;
+          const json = JSON.parse(cleaned.replace(/^data: /, ''));
+          const content = json.choices?.[0]?.delta?.content;
+          if (content) {
+            setMessages(prev => {
+              const msgs = [...prev];
+              msgs[msgs.length - 1].content += content;
               return msgs;
             });
           }
@@ -106,7 +119,8 @@ const QaAIUI = () => {
     } catch (e) {
       setMessages(prev => {
         const msgs = [...prev];
-        msgs[msgs.length - 1].content = 'I apologize, but I encountered an error. Please check your API key and try again.';
+        msgs[msgs.length - 1].content =
+          'I apologize, but I encountered an error. Please check your API key and try again.';
         return msgs;
       });
     } finally {
