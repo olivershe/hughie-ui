@@ -23,19 +23,8 @@ styles, and fallback styles are defined for `html.dark` in
 
 ### API Key Configuration
 
-The application needs an OpenAI API key to make requests. You can either provide
-it via an environment variable or enter it each time the app starts.
-
-To store it in an environment file, copy `.env.example` to `.env.local` and set
-`REACT_APP_OPENAI_API_KEY`:
-
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local` and replace the placeholder value for `REACT_APP_OPENAI_API_KEY`.
-Restart the development server after editing the file. If the environment
-variable is not set, the app will prompt you to supply the key on first load.
+The application prompts for your OpenAI API key every time it starts. The key is
+kept only in memory for the current session and is never stored locally.
 
 ### `npm test`
 

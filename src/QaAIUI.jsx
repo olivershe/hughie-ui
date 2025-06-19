@@ -69,18 +69,15 @@ const QaAIUI = () => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
-  const apiKey = process.env.REACT_APP_OPENAI_API_KEY || '';
-  const [userApiKey, setUserApiKey] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [tempApiKey, setTempApiKey] = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (!apiKey && !userApiKey) {
-      console.error(
-        'OpenAI API key is missing. Provide it via REACT_APP_OPENAI_API_KEY or enter it at runtime.'
-      );
+    if (!apiKey) {
+      console.error('OpenAI API key is missing. Please enter it.');
     }
-  }, [apiKey, userApiKey]);
+  }, [apiKey]);
 
   const [conversations, setConversations] = useState(() => {
     const saved = localStorage.getItem('conversations');
@@ -134,7 +131,7 @@ const QaAIUI = () => {
     scrollToBottom();
   }, [messages]);
 
-  if (!apiKey && !userApiKey) {
+  if (!apiKey) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-80">
@@ -147,7 +144,7 @@ const QaAIUI = () => {
             placeholder="sk-..."
           />
           <button
-            onClick={() => setUserApiKey(tempApiKey.trim())}
+            onClick={() => setApiKey(tempApiKey.trim())}
             disabled={!tempApiKey.trim()}
             className="w-full bg-gray-900 text-white py-2 rounded disabled:opacity-50"
           >
@@ -195,12 +192,11 @@ const QaAIUI = () => {
         mode: selectedMode,
         userMessage
       });
-      const keyToUse = userApiKey || apiKey;
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${keyToUse}`
+          Authorization: `Bearer ${apiKey}`
         },
         body: JSON.stringify({
           model: 'gpt-4o-2024-08-06',
@@ -279,7 +275,7 @@ const QaAIUI = () => {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isGenerating) return;
-    if (!apiKey && !userApiKey) return;
+    if (!apiKey) return;
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const newMessage = { id: Date.now(), type: 'user', content: inputValue.trim(), timestamp };
     setMessages(prev => [...prev, newMessage]);

@@ -5,16 +5,16 @@ afterEach(() => {
   localStorage.clear();
 });
 
-beforeEach(() => {
-  process.env.REACT_APP_OPENAI_API_KEY = 'test';
-});
-
 beforeAll(() => {
   Element.prototype.scrollIntoView = jest.fn();
 });
 
 test('renders QaAI landing screen with tagline "Democratising Expertise"', () => {
   render(<App />);
+  fireEvent.change(screen.getByPlaceholderText('sk-...'), {
+    target: { value: 'test-key' }
+  });
+  fireEvent.click(screen.getByText('Continue'));
   const tagline = screen.getByTestId('tagline');
   expect(tagline).toBeInTheDocument();
 });
@@ -44,6 +44,11 @@ test('opening a conversation updates the mode badge', async () => {
   localStorage.setItem('conversations', JSON.stringify(conversations));
 
   render(<App />);
+
+  fireEvent.change(screen.getByPlaceholderText('sk-...'), {
+    target: { value: 'test-key' }
+  });
+  fireEvent.click(screen.getByText('Continue'));
 
   fireEvent.click(screen.getByText('Legal chat'));
 
