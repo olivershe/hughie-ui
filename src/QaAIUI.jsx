@@ -158,6 +158,30 @@ const QaAIUI = () => {
     scrollToBottom();
   }, [messages]);
 
+  if (!apiKey && !userApiKey) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-80">
+          <h2 className="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">Enter OpenAI API Key</h2>
+          <input
+            type="password"
+            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 mb-4 dark:bg-gray-700 dark:text-gray-100"
+            value={tempApiKey}
+            onChange={(e) => setTempApiKey(e.target.value)}
+            placeholder="sk-..."
+          />
+          <button
+            onClick={() => setUserApiKey(tempApiKey.trim())}
+            disabled={!tempApiKey.trim()}
+            className="w-full bg-gray-900 text-white py-2 rounded disabled:opacity-50"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const streamResponse = async (userMessage) => {
     setIsGenerating(true);
    
