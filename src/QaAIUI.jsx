@@ -72,6 +72,14 @@ const QaAIUI = () => {
   const apiKey = process.env.REACT_APP_OPENAI_API_KEY || '';
   const messagesEndRef = useRef(null);
 
+  useEffect(() => {
+    if (!apiKey) {
+      console.error(
+        'OpenAI API key is missing. Set REACT_APP_OPENAI_API_KEY in your environment.'
+      );
+    }
+  }, [apiKey]);
+
   const [conversations, setConversations] = useState(() => {
     const saved = localStorage.getItem('conversations');
     return saved ? JSON.parse(saved) : [];
@@ -157,6 +165,10 @@ const QaAIUI = () => {
         else systemPrompt += 'democratizing expertise across legal, financial, and medical domains.';
       }
 
+      console.log('Sending request to OpenAI', {
+        mode: selectedMode,
+        userMessage
+      });
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -174,8 +186,16 @@ const QaAIUI = () => {
       });
 
       if (!response.ok) {
+        let errorBody = '';
+        try {
+          errorBody = await response.text();
+        } catch (readErr) {
+          console.error('Failed to read error response body', readErr);
+        }
         const err = new Error('API request failed');
         err.status = response.status;
+        err.body = errorBody;
+        err.statusText = response.statusText;
         throw err;
       }
 
@@ -212,7 +232,12 @@ const QaAIUI = () => {
         }
       }
     } catch (e) {
-      console.error(e);
+      console.error('OpenAI API error', {
+        message: e.message,
+        status: e.status,
+        statusText: e.statusText,
+        body: e.body
+      });
       let errorMsg = 'Something went wrong, please try again later.';
       if (e.status === 401) {
         errorMsg = 'Authentication failed. Please check your API key.';
