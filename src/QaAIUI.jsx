@@ -157,7 +157,7 @@ const QaAIUI = () => {
 
   const streamResponse = async (userMessage) => {
     setIsGenerating(true);
-   
+
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const replyId = Date.now();
     const placeholder = { id: replyId, type: 'assistant', content: '', timestamp };
@@ -169,7 +169,6 @@ const QaAIUI = () => {
           : c
       )
     );
-
 
     try {
       let systemPrompt = '';
@@ -404,7 +403,7 @@ const QaAIUI = () => {
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${themeColors[selectedMode || 'null'].main} dark:border-gray-700`}> 
+        <div className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${themeColors[selectedMode || 'null'].main} dark:border-gray-700`}>
           <div className="flex items-center gap-3">
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
               <Menu className="w-5 h-5" />
@@ -427,7 +426,7 @@ const QaAIUI = () => {
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto min-h-full animate-fade-in">
               <h1 className="text-3xl font-normal text-gray-900 mb-8" style={{ fontFamily: 'Georgia, Times, serif' }}>Good afternoon, Oliver</h1>
-              <p className="text-gray-600 dark:text-gray-300 text-lg mb-12" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+              <p className="text-gray-600 dark:text-gray-300 text-lg mb-12" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif', letterSpacing: '-0.02em' }}>
                 How can I help you today?
               </p>
               <div className="w-full max-w-xl mb-6">
@@ -471,7 +470,7 @@ const QaAIUI = () => {
               <p
                 data-testid="tagline"
                 className="text-gray-500 text-sm mt-12"
-                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif', letterSpacing: '0.01em' }}
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif', letterSpacing: '0.01em' }}
               >
                 Democratising Expertise
               </p>
