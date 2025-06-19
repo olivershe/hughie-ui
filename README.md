@@ -14,6 +14,13 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
+### Dark Mode
+
+Click the sun/moon icon in the app header to toggle dark mode. The
+`html` element receives a `dark` class to activate Tailwind's dark
+styles, and fallback styles are defined for `html.dark` in
+`src/index.css`.
+
 ### `npm test`
 
 Launches the test runner in the interactive watch mode.\
