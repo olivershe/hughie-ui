@@ -5,6 +5,10 @@ afterEach(() => {
   localStorage.clear();
 });
 
+beforeEach(() => {
+  process.env.REACT_APP_OPENAI_API_KEY = 'test';
+});
+
 beforeAll(() => {
   Element.prototype.scrollIntoView = jest.fn();
 });
