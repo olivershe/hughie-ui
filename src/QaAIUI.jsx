@@ -220,14 +220,8 @@ const QaAIUI = () => {
               msgs[msgs.length - 1].content += content;
               return msgs;
             });
-            setConversations(prev =>
-              prev.map(c => {
-                if (c.id !== currentConversationId) return c;
-                const msgs = [...(c.messages || [])];
-                msgs[msgs.length - 1].content += content;
-                return { ...c, messages: msgs };
-              })
-            );
+            // Avoid updating conversations during streaming to prevent
+            // duplicating content. We'll sync after streaming completes.
           }
         }
       }
@@ -249,14 +243,8 @@ const QaAIUI = () => {
         msgs[msgs.length - 1].content = errorMsg;
         return msgs;
       });
-      setConversations(prev =>
-        prev.map(c => {
-          if (c.id !== currentConversationId) return c;
-          const msgs = [...(c.messages || [])];
-          msgs[msgs.length - 1].content = errorMsg;
-          return { ...c, messages: msgs };
-        })
-      );
+      // Error message will be synced to the conversation after streaming
+      // finishes, so no need to update it here.
     } finally {
       setIsGenerating(false);
     }
@@ -283,6 +271,13 @@ const QaAIUI = () => {
     const message = inputValue.trim();
     setInputValue('');
     await streamResponse(message);
+    // After streaming completes, sync the conversation with the
+    // latest messages state to avoid duplication issues.
+    setConversations(prev =>
+      prev.map(c =>
+        c.id === currentConversationId ? { ...c, messages: [...messages] } : c
+      )
+    );
   };
 
   const handleKeyPress = (e) => {
