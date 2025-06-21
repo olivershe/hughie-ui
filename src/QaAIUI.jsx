@@ -56,18 +56,15 @@ const QaAIUI = () => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
-  const apiKey = process.env.REACT_APP_OPENAI_API_KEY || '';
-  const [userApiKey, setUserApiKey] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [tempApiKey, setTempApiKey] = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (!apiKey && !userApiKey) {
-      console.error(
-        'OpenAI API key is missing. Provide it via REACT_APP_OPENAI_API_KEY or enter it at runtime.'
-      );
+    if (!apiKey) {
+      console.error('OpenAI API key is missing. Please enter it.');
     }
-  }, [apiKey, userApiKey]);
+  }, [apiKey]);
 
   const [conversations, setConversations] = useState(() => {
     const saved = localStorage.getItem('conversations');
@@ -113,30 +110,6 @@ const QaAIUI = () => {
     agent: { main: 'bg-purple-50 dark:bg-gray-900', sidebar: 'bg-purple-100 dark:bg-gray-800' }
   };
 
-  if (!apiKey && !userApiKey) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-80">
-          <h2 className="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">Enter OpenAI API Key</h2>
-          <input
-            type="password"
-            className="w-full border border-gray-300 dark:border-gray-700 rounded p-2 mb-4 dark:bg-gray-700 dark:text-gray-100"
-            value={tempApiKey}
-            onChange={(e) => setTempApiKey(e.target.value)}
-            placeholder="sk-..."
-          />
-          <button
-            onClick={() => setUserApiKey(tempApiKey.trim())}
-            disabled={!tempApiKey.trim()}
-            className="w-full bg-gray-900 text-white py-2 rounded disabled:opacity-50"
-          >
-            Continue
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -145,7 +118,7 @@ const QaAIUI = () => {
     scrollToBottom();
   }, [messages]);
 
-  if (!apiKey && !userApiKey) {
+  if (!apiKey) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-80">
@@ -158,7 +131,7 @@ const QaAIUI = () => {
             placeholder="sk-..."
           />
           <button
-            onClick={() => setUserApiKey(tempApiKey.trim())}
+            onClick={() => setApiKey(tempApiKey.trim())}
             disabled={!tempApiKey.trim()}
             className="w-full bg-gray-900 text-white py-2 rounded disabled:opacity-50"
           >
@@ -171,7 +144,7 @@ const QaAIUI = () => {
 
   const streamResponse = async (userMessage) => {
     setIsGenerating(true);
-   
+
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const replyId = Date.now();
     const placeholder = { id: replyId, type: 'assistant', content: '', timestamp };
@@ -183,7 +156,6 @@ const QaAIUI = () => {
           : c
       )
     );
-
 
     try {
       let systemPrompt = '';
@@ -206,12 +178,11 @@ const QaAIUI = () => {
         mode: selectedMode,
         userMessage
       });
-      const keyToUse = userApiKey || apiKey;
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${keyToUse}`
+          Authorization: `Bearer ${apiKey}`
         },
         body: JSON.stringify({
           model: 'gpt-4o-2024-08-06',
@@ -290,7 +261,7 @@ const QaAIUI = () => {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isGenerating) return;
-    if (!apiKey && !userApiKey) return;
+    if (!apiKey) return;
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const newMessage = { id: Date.now(), type: 'user', content: inputValue.trim(), timestamp };
     setMessages(prev => [...prev, newMessage]);
@@ -419,7 +390,7 @@ const QaAIUI = () => {
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${themeColors[selectedMode || 'null'].main} dark:border-gray-700`}> 
+        <div className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${themeColors[selectedMode || 'null'].main} dark:border-gray-700`}>
           <div className="flex items-center gap-3">
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
               <Menu className="w-5 h-5" />
@@ -442,7 +413,7 @@ const QaAIUI = () => {
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto min-h-full animate-fade-in">
               <h1 className="text-3xl font-normal text-gray-900 mb-8" style={{ fontFamily: 'Georgia, Times, serif' }}>Good afternoon, Oliver</h1>
-              <p className="text-gray-600 dark:text-gray-300 text-lg mb-12" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+              <p className="text-gray-600 dark:text-gray-300 text-lg mb-12" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif', letterSpacing: '-0.02em' }}>
                 How can I help you today?
               </p>
               <div className="w-full max-w-xl mb-6">
@@ -486,7 +457,7 @@ const QaAIUI = () => {
               <p
                 data-testid="tagline"
                 className="text-gray-500 text-sm mt-12"
-                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif', letterSpacing: '0.01em' }}
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif', letterSpacing: '0.01em' }}
               >
                 Democratising Expertise
               </p>
