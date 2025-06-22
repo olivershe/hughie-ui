@@ -10,6 +10,9 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
       },
+      strokeWidth: {
+        2: '2',
+      },
       animation: {
         'fade-in': 'fade-in 0.4s ease forwards',
         'bounce': 'bounce 1s infinite',
