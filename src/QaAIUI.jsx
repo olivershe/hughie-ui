@@ -49,15 +49,15 @@ Additional rules:
 
 
 const IdeaCard = ({ icon: Icon, title, subtitle }) => (
-  <div className="w-56 h-64 p-6 rounded-3xl glass flex flex-col justify-between">
-    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-900/90 text-white">
-      <Icon strokeWidth={1.6} className="h-5 w-5" />
+  <div className="w-40 h-48 p-4 rounded-3xl glass flex flex-col justify-between">
+    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900/90 text-white">
+      <Icon strokeWidth={1.6} className="h-[14px] w-[14px]" />
     </span>
-    <div>
-      <h3 className="text-base font-medium tracking-tight text-gray-900 dark:text-white">
+    <div className="overflow-hidden">
+      <h3 className="text-sm font-medium tracking-tight text-gray-900 dark:text-white">
         {title}
       </h3>
-      <p className="text-sm text-gray-500">{subtitle}</p>
+      <p className="text-xs text-gray-500 line-clamp-1">{subtitle}</p>
     </div>
   </div>
 );
@@ -567,7 +567,7 @@ const QaAIUI = () => {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <div
-          className={`border-b border-gray-200 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${themeColors[selectedMode || "null"].main} dark:border-gray-700`}
+          className={`glass bg-white/45 dark:bg-gray-800/50 px-4 py-3 flex items-center justify-between transition-colors duration-500`}
         >
           <div className="flex items-center gap-3">
             <button
@@ -607,7 +607,7 @@ const QaAIUI = () => {
               <p className="text-lg text-gray-600 dark:text-gray-300">
                 How can I help you today?
               </p>
-              <div className="grid sm:grid-cols-3 gap-4 w-full">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 max-w-lg mx-auto">
                 {suggestions.map((s, idx) => (
                   <IdeaCard
                     key={idx}
@@ -618,7 +618,7 @@ const QaAIUI = () => {
                   />
                 ))}
               </div>
-            <div className="w-full max-w-xl mb-6">
+            <div className="w-full max-w-xl mt-12">
               <div className="flex items-center glass rounded-2xl px-4 py-3">
                 <textarea
                   ref={inputRef}
@@ -626,7 +626,7 @@ const QaAIUI = () => {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Message QaAI"
-                  className="flex-1 glass bg-transparent resize-none placeholder:text-gray-400"
+                  className="flex-1 bg-transparent outline-none resize-none placeholder:text-gray-400 text-[15px] leading-6"
                   rows="1"
                   disabled={isGenerating}
                 />
@@ -640,14 +640,14 @@ const QaAIUI = () => {
                 </button>
               </div>
             </div>
-              <div className="flex gap-3 flex-wrap justify-center">
+              <div className="flex gap-3 flex-wrap justify-center mt-6">
                 {modes.map((mode) => (
                   <button
                     key={mode.id}
                     onClick={() => handleModeSelect(mode.id)}
-                    className={`glass flex items-center gap-3 pl-2 pr-4 py-2 rounded-full transition ring-1 ring-black/10 hover:ring-black/20 ${selectedMode === mode.id ? 'ring-black/20 dark:ring-white/20' : ''}`}
+                    className={`glass h-8 flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full transition ring-1 ring-black/10 hover:ring-black/20 ${selectedMode === mode.id ? 'ring-black/20 dark:ring-white/20' : ''}`}
                   >
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-gray-800 ring-1 ring-black/5">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white dark:bg-gray-800 ring-1 ring-black/5">
                       <mode.icon strokeWidth={1.8} className="h-4 w-4 text-gray-700 dark:text-gray-200" />
                     </span>
                     <span className="text-sm font-medium tracking-tight text-gray-800 dark:text-gray-100">
@@ -752,7 +752,7 @@ const QaAIUI = () => {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder={`Reply to QaAI${selectedMode ? ` (${modes.find((m) => m.id === selectedMode)?.label} mode)` : ""}...`}
-                      className="flex-1 glass bg-transparent resize-none placeholder:text-gray-400"
+                      className="flex-1 bg-transparent outline-none resize-none placeholder:text-gray-400 text-[15px] leading-6"
                       rows="1"
                       disabled={isGenerating}
                     />
