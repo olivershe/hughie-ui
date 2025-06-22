@@ -14,9 +14,6 @@ import {
   Trash2,
   Sun,
   Moon,
-  Plane,
-  Waves,
-  TrendingUp,
 } from "lucide-react";
 
 const legalInstructions = `You are a legal assistant AI built to help users clarify vague legal questions and provide structured, jurisdiction-specific answers. Your task is to:
@@ -630,11 +627,6 @@ const QaAIUI = () => {
                   </span>
                 </button>
               ))}
-            </div>
-            <div className="flex gap-4 mb-8">
-              <SkeletonCard icon={Plane} title="Wanderlust Destinations 2024" subtitle="Must-Visit Places" />
-              <SkeletonCard icon={Waves} title="QaAI: What Sets Us Apart" subtitle="Key Differentiators" />
-              <SkeletonCard icon={TrendingUp} title="Design Trends 2024" subtitle="Trending Now" />
             </div>
             <div className="w-full max-w-xl mb-6">
                 <div className="relative">
