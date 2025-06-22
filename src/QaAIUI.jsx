@@ -48,10 +48,10 @@ Additional rules:
 - Be neutral and accurate in tone.`;
 
 
-const IdeaCard = ({ icon: Icon, title, subtitle }) => (
-  <div className="w-40 h-48 p-4 rounded-3xl glass flex flex-col justify-between">
-    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900/90 text-white">
-      <Icon strokeWidth={1.6} className="h-[14px] w-[14px]" />
+const PromptCard = ({ icon: Icon, title, subtitle }) => (
+  <div className="w-36 h-36 p-2.5 rounded-3xl glass flex flex-col justify-between">
+    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gray-900/90 text-white">
+      <Icon strokeWidth={1.6} className="h-[10px] w-[10px]" />
     </span>
     <div className="overflow-hidden">
       <h3 className="text-sm font-medium tracking-tight text-gray-900 dark:text-white">
@@ -607,9 +607,9 @@ const QaAIUI = () => {
               <p className="text-lg text-gray-600 dark:text-gray-300">
                 How can I help you today?
               </p>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 max-w-lg mx-auto">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(144px,1fr))] gap-4 max-w-md mx-auto mt-10">
                 {suggestions.map((s, idx) => (
-                  <IdeaCard
+                  <PromptCard
                     key={idx}
                     icon={s.icon}
                     title={s.title}
