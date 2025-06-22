@@ -86,6 +86,7 @@ const QaAIUI = () => {
   const [apiKey, setApiKey] = useState("");
   const [tempApiKey, setTempApiKey] = useState("");
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (!apiKey) {
@@ -126,6 +127,27 @@ const QaAIUI = () => {
     { id: "finance", label: "Finance", icon: DollarSign },
     { id: "medical", label: "Medical", icon: Stethoscope },
     { id: "agent", label: "Agent mode", icon: Cpu },
+  ];
+
+  const suggestions = [
+    {
+      icon: Scale,
+      title: "Tenancy question",
+      subtitle: "Is my eviction notice valid?",
+      prompt: "Is my landlord's eviction notice valid under UK law?",
+    },
+    {
+      icon: DollarSign,
+      title: "Budget help",
+      subtitle: "Create a monthly budget plan",
+      prompt: "Can you help me create a monthly budget plan?",
+    },
+    {
+      icon: Stethoscope,
+      title: "Health query",
+      subtitle: "Should I see a doctor?",
+      prompt: "Should I see a doctor about persistent headaches?",
+    },
   ];
 
   // Theme colors for main and sidebar
@@ -374,6 +396,11 @@ const QaAIUI = () => {
     setSelectedMode(modeId === selectedMode ? null : modeId);
   };
 
+  const handleSuggestionClick = (prompt) => {
+    setInputValue(prompt);
+    inputRef.current?.focus();
+  };
+
   const handleNewChat = () => {
     const id = Date.now();
     const newConv = {
@@ -553,9 +580,27 @@ const QaAIUI = () => {
               >
                 How can I help you today?
               </p>
+              <div className="grid sm:grid-cols-3 gap-4 mb-8 w-full">
+                {suggestions.map((s, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSuggestionClick(s.prompt)}
+                    className="flex flex-col items-start text-left p-4 rounded-2xl bg-white/60 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 backdrop-blur-md hover:bg-white/70 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    {React.createElement(s.icon, {
+                      className: "w-6 h-6 mb-2 text-gray-800 dark:text-gray-100",
+                    })}
+                    <span className="font-medium">{s.title}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                      {s.subtitle}
+                    </span>
+                  </button>
+                ))}
+              </div>
               <div className="w-full max-w-xl mb-6">
                 <div className="relative">
                   <textarea
+                    ref={inputRef}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
