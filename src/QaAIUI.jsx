@@ -666,16 +666,10 @@ const QaAIUI = () => {
                   <button
                     key={mode.id}
                     onClick={() => handleModeSelect(mode.id)}
-                    className={`
-    flex items-center gap-3 pl-2 pr-4 py-2 rounded-full transition
-    ring-1 ring-black/10 hover:ring-black/20
-    ${selectedMode === mode.id
-      ? 'bg-white/80 dark:bg-gray-700/60 backdrop-blur-sm'
-      : 'bg-white/60 dark:bg-gray-600/50 backdrop-blur-[2px]'
-    }`}
+                    className={`glass flex items-center gap-3 pl-2 pr-4 py-2 rounded-full transition ring-1 ring-black/10 hover:ring-black/20 ${selectedMode === mode.id ? 'ring-black/20 dark:ring-white/20' : ''}`}
                   >
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-gray-800 ring-1 ring-black/5">
-                      <mode.icon strokeWidth={2} className="h-4 w-4 text-gray-700 dark:text-gray-200" />
+                      <mode.icon strokeWidth={1.8} className="h-4 w-4 text-gray-700 dark:text-gray-200" />
                     </span>
                     <span className="text-sm font-medium tracking-tight text-gray-800 dark:text-gray-100">
                       {mode.label}
