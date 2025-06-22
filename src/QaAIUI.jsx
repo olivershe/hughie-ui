@@ -47,17 +47,6 @@ Additional rules:
 - Do not hallucinate laws—reason from first legal principles.
 - Be neutral and accurate in tone.`;
 
-const SkeletonCard = ({ icon: Icon, title, subtitle }) => (
-  <div className="w-40 h-44 rounded-3xl bg-white/60 dark:bg-gray-700/60 backdrop-blur-md shadow ring-1 ring-black/5 p-4 flex flex-col justify-between animate-fade-in">
-    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white dark:bg-gray-800 ring-1 ring-black/5">
-      <Icon strokeWidth={2} className="h-4 w-4 text-gray-800 dark:text-gray-200" />
-    </span>
-    <div className="space-y-1">
-      <p className="text-sm font-medium leading-tight text-gray-800 dark:text-gray-100">{title}</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
-    </div>
-  </div>
-);
 
 const renderAssistantContent = (content) => {
   if (!content) return null;
