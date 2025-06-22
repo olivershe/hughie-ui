@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         'inter': ['Inter', 'system-ui', 'sans-serif'],
+        'syrene': ['"Syne"', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fade-in 0.4s ease forwards',
