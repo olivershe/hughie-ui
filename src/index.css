@@ -60,3 +60,9 @@ html.dark {
   color: #f3f4f6;
   --bg-gradient: linear-gradient(to bottom right, #1f2937, #111827);
 }
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-md bg-white/70 dark:bg-[#1f1f22]/60 ring-1 ring-white/15 shadow-sm;
+  }
+}
