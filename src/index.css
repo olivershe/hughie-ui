@@ -58,6 +58,12 @@ body {
 html.dark {
   background-color: #1f2937;
   color: #f3f4f6;
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-md bg-white/70 dark:bg-[#1f1f22]/60 ring-1 ring-white/15 shadow-sm;
+  }
+=======
   --bg-gradient: radial-gradient(circle at top left, #1f2937, #111827);
 }
 
@@ -75,4 +81,5 @@ html.dark[data-mode='medical'] {
 
 html.dark[data-mode='agent'] {
   --bg-gradient: radial-gradient(circle at top left, #4c1d95, #2e1065);
+
 }

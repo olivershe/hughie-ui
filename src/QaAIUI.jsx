@@ -462,7 +462,7 @@ const QaAIUI = () => {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -260, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className={`w-64 h-full ${themeColors[selectedMode || "null"].sidebar} border-r border-black/5 dark:border-white/10 overflow-y-auto bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm`}
+            className={`w-64 h-full ${themeColors[selectedMode || "null"].sidebar} border-r border-black/5 dark:border-white/10 overflow-y-auto glass`}
           >
             <div className="p-4">
               <button
@@ -616,7 +616,7 @@ const QaAIUI = () => {
                 <button
                   key={idx}
                   onClick={() => handleSuggestionClick(s.prompt)}
-                  className="flex flex-col items-start text-left p-4 rounded-2xl bg-white/60 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 backdrop-blur-md hover:bg-white/70 dark:hover:bg-gray-700 transition-colors"
+                  className="glass flex flex-col items-start text-left p-4 rounded-2xl border border-gray-200 dark:border-gray-700 hover:bg-white/70 dark:hover:bg-gray-700 transition-colors"
                 >
                   {React.createElement(s.icon, {
                     className: "w-6 h-6 mb-2 text-gray-800 dark:text-gray-100",
@@ -648,10 +648,10 @@ const QaAIUI = () => {
                     <button
                       onClick={handleSendMessage}
                       disabled={!inputValue.trim() || isGenerating}
-                      className={`p-1.5 rounded-md ring-1 ring-white/15 shadow-sm transition-colors ${
+                      className={`glass p-1.5 transition-colors ${
                         inputValue.trim() && !isGenerating
                           ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
-                          : "bg-white/30 dark:bg-[#1f1f22]/30 backdrop-blur-md text-gray-400"
+                          : "bg-white/30 dark:bg-[#1f1f22]/30 text-gray-400"
                       }`}
                     >
                       <ArrowUp
@@ -699,7 +699,7 @@ const QaAIUI = () => {
                 <div className="max-w-3xl mx-auto px-4 py-6">
                   {selectedMode && (
                     <div className="text-center mb-6">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-full">
+                      <div className="glass inline-flex items-center gap-2 px-3 py-1.5 rounded-full">
                         {React.createElement(
                           modes.find((m) => m.id === selectedMode).icon,
                           {
@@ -724,7 +724,7 @@ const QaAIUI = () => {
                       {message.type === "user" ? (
                         <div className="flex items-start gap-3 justify-end">
                           <div>
-                          <div className="px-4 py-2.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-2xl text-gray-900 dark:text-gray-100">
+                          <div className="glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100">
                             {message.content}
                           </div>
                             <div className="text-xs text-gray-500 mt-1 text-right">
@@ -738,7 +738,7 @@ const QaAIUI = () => {
                       ) : (
                         <div>
                           <div
-                            className={`px-4 py-2.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
+                            className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
                           >
                             {message.content
                               ? renderAssistantContent(message.content)
@@ -791,10 +791,10 @@ const QaAIUI = () => {
                       <button
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isGenerating}
-                        className={`p-1.5 rounded-md ring-1 ring-white/15 shadow-sm transition-colors ${
+                        className={`glass p-1.5 transition-colors ${
                           inputValue.trim() && !isGenerating
                             ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
-                            : "bg-white/30 dark:bg-[#1f1f22]/30 backdrop-blur-md text-gray-400"
+                            : "bg-white/30 dark:bg-[#1f1f22]/30 text-gray-400"
                         }`}
                       >
                         <ArrowUp
