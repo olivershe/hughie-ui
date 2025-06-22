@@ -409,13 +409,14 @@ const QaAIUI = () => {
   };
 
   return (
-    <div
-      className={`flex h-screen transition-colors duration-500 ${themeColors[selectedMode || "null"].main} dark:bg-gray-900`}
-      style={{ background: "var(--bg-gradient)" }}
-    >
+    <div className="m-5 rounded-3xl overflow-hidden shadow-xl">
+      <div
+        className={`flex h-screen transition-colors duration-500 ${themeColors[selectedMode || "null"].main} dark:bg-gray-900`}
+        style={{ background: "var(--bg-gradient)" }}
+      >
       {/* Sidebar */}
       <div
-        className={`${isSidebarOpen ? "w-64" : "w-0"} transition-all duration-300 ${themeColors[selectedMode || "null"].sidebar} border-r border-gray-200 overflow-hidden dark:bg-gray-800`}
+        className={`${isSidebarOpen ? "w-64" : "w-0"} transition-all duration-300 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm overflow-hidden`}
       >
         <div className="p-4">
           <button
@@ -581,10 +582,10 @@ const QaAIUI = () => {
                     <button
                       onClick={handleSendMessage}
                       disabled={!inputValue.trim() || isGenerating}
-                      className={`p-1.5 rounded-md transition-colors ${
+                      className={`p-1.5 rounded-md ring-1 ring-white/15 shadow-sm transition-colors ${
                         inputValue.trim() && !isGenerating
-                          ? "bg-gray-900 hover:bg-gray-800 text-white"
-                          : "hover:bg-gray-100"
+                          ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
+                          : "bg-white/30 dark:bg-[#1f1f22]/30 backdrop-blur-md text-gray-400"
                       }`}
                     >
                       <ArrowUp
@@ -599,10 +600,10 @@ const QaAIUI = () => {
                   <button
                     key={mode.id}
                     onClick={() => handleModeSelect(mode.id)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all text-sm ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all text-sm ring-1 ring-white/15 shadow-sm ${
                       selectedMode === mode.id
-                        ? "border-gray-400 bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-100"
-                        : "border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-100"
+                        ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
+                        : "bg-white/30 dark:bg-[#1f1f22]/30 backdrop-blur-md text-gray-700 dark:text-gray-100 hover:bg-white/40 dark:hover:bg-[#1f1f22]/40"
                     }`}
                   >
                     <mode.icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
@@ -626,7 +627,7 @@ const QaAIUI = () => {
                 <div className="max-w-3xl mx-auto px-4 py-6">
                   {selectedMode && (
                     <div className="text-center mb-6">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full">
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-full">
                         {React.createElement(
                           modes.find((m) => m.id === selectedMode).icon,
                           {
@@ -648,9 +649,9 @@ const QaAIUI = () => {
                       {message.type === "user" ? (
                         <div className="flex items-start gap-3 justify-end">
                           <div>
-                            <div className="px-4 py-2.5 bg-gray-100 dark:bg-gray-700 rounded-2xl text-gray-900 dark:text-gray-100">
-                              {message.content}
-                            </div>
+                          <div className="px-4 py-2.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-2xl text-gray-900 dark:text-gray-100">
+                            {message.content}
+                          </div>
                             <div className="text-xs text-gray-500 mt-1 text-right">
                               {message.timestamp}
                             </div>
@@ -662,7 +663,7 @@ const QaAIUI = () => {
                       ) : (
                         <div>
                           <div
-                            className={`px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
+                            className={`px-4 py-2.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
                           >
                             {message.content
                               ? renderAssistantContent(message.content)
@@ -715,10 +716,10 @@ const QaAIUI = () => {
                       <button
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isGenerating}
-                        className={`p-1.5 rounded-md transition-colors ${
+                        className={`p-1.5 rounded-md ring-1 ring-white/15 shadow-sm transition-colors ${
                           inputValue.trim() && !isGenerating
-                            ? "bg-gray-900 hover:bg-gray-800 text-white"
-                            : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                            ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
+                            : "bg-white/30 dark:bg-[#1f1f22]/30 backdrop-blur-md text-gray-400"
                         }`}
                       >
                         <ArrowUp
@@ -747,6 +748,7 @@ const QaAIUI = () => {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 };
