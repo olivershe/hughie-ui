@@ -35,6 +35,22 @@
   --bg-gradient: linear-gradient(to bottom right, #f8fafc, #e0e7ff);
 }
 
+html[data-mode='legal'] {
+  --bg-gradient: linear-gradient(to bottom right, #f0fdf4, #dcfce7);
+}
+
+html[data-mode='finance'] {
+  --bg-gradient: linear-gradient(to bottom right, #eff6ff, #dbeafe);
+}
+
+html[data-mode='medical'] {
+  --bg-gradient: linear-gradient(to bottom right, #fef2f2, #fee2e2);
+}
+
+html[data-mode='agent'] {
+  --bg-gradient: linear-gradient(to bottom right, #faf5ff, #ede9fe);
+}
+
 body {
   font-family: "Syne", Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
 }
@@ -42,4 +58,5 @@ body {
 html.dark {
   background-color: #1f2937;
   color: #f3f4f6;
+  --bg-gradient: linear-gradient(to bottom right, #1f2937, #111827);
 }

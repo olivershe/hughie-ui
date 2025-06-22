@@ -105,6 +105,15 @@ const QaAIUI = () => {
   }, [isDarkMode]);
 
   useEffect(() => {
+    const root = document.documentElement;
+    if (selectedMode) {
+      root.dataset.mode = selectedMode;
+    } else {
+      delete root.dataset.mode;
+    }
+  }, [selectedMode]);
+
+  useEffect(() => {
     const first = conversations[0];
     if (first && currentConversationId === null) {
       setCurrentConversationId(first.id);
