@@ -59,6 +59,21 @@ const SkeletonCard = ({ icon: Icon, title, subtitle }) => (
   </div>
 );
 
+const IdeaCard = ({ icon: Icon, title, subtitle, onClick }) => (
+  <button
+    onClick={onClick}
+    className="w-40 h-44 rounded-3xl bg-white/60 dark:bg-gray-700/60 backdrop-blur-md shadow ring-1 ring-black/5 p-4 flex flex-col justify-between text-left hover:bg-white/70 dark:hover:bg-gray-700 transition-colors"
+  >
+    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white dark:bg-gray-800 ring-1 ring-black/5">
+      <Icon strokeWidth={2} className="h-4 w-4 text-gray-800 dark:text-gray-200" />
+    </span>
+    <div className="space-y-1">
+      <p className="text-sm font-medium leading-tight text-gray-800 dark:text-gray-100">{title}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
+    </div>
+  </button>
+);
+
 const renderAssistantContent = (content) => {
   if (!content) return null;
   return content.split("\n").map((line, idx) => {
@@ -612,22 +627,16 @@ const QaAIUI = () => {
                 How can I help you today?
               </p>
               <div className="grid sm:grid-cols-3 gap-4 mb-8 w-full">
-              {suggestions.map((s, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSuggestionClick(s.prompt)}
-                  className="flex flex-col items-start text-left p-4 rounded-2xl bg-white/60 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 backdrop-blur-md hover:bg-white/70 dark:hover:bg-gray-700 transition-colors"
-                >
-                  {React.createElement(s.icon, {
-                    className: "w-6 h-6 mb-2 text-gray-800 dark:text-gray-100",
-                  })}
-                  <span className="font-medium">{s.title}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-300">
-                    {s.subtitle}
-                  </span>
-                </button>
-              ))}
-            </div>
+                {suggestions.map((s, idx) => (
+                  <IdeaCard
+                    key={idx}
+                    icon={s.icon}
+                    title={s.title}
+                    subtitle={s.subtitle}
+                    onClick={() => handleSuggestionClick(s.prompt)}
+                  />
+                ))}
+              </div>
             <div className="w-full max-w-xl mb-6">
                 <div className="relative">
                   <textarea
