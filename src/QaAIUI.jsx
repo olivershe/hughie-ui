@@ -47,17 +47,6 @@ Additional rules:
 - Do not hallucinate laws—reason from first legal principles.
 - Be neutral and accurate in tone.`;
 
-const SkeletonCard = ({ icon: Icon, title, subtitle }) => (
-  <div className="w-40 h-44 rounded-3xl bg-white/60 dark:bg-gray-700/60 backdrop-blur-md shadow ring-1 ring-black/5 p-4 flex flex-col justify-between animate-fade-in">
-    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white dark:bg-gray-800 ring-1 ring-black/5">
-      <Icon strokeWidth={2} className="h-4 w-4 text-gray-800 dark:text-gray-200" />
-    </span>
-    <div className="space-y-1">
-      <p className="text-sm font-medium leading-tight text-gray-800 dark:text-gray-100">{title}</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
-    </div>
-  </div>
-);
 
 const IdeaCard = ({ icon: Icon, title, subtitle, onClick }) => (
   <button
@@ -477,7 +466,7 @@ const QaAIUI = () => {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -260, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className={`w-64 h-full ${themeColors[selectedMode || "null"].sidebar} border-r border-black/5 dark:border-white/10 overflow-y-auto bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm`}
+            className={`w-64 h-full ${themeColors[selectedMode || "null"].sidebar} border-r border-black/5 dark:border-white/10 overflow-y-auto glass`}
           >
             <div className="p-4">
               <button
@@ -657,10 +646,10 @@ const QaAIUI = () => {
                     <button
                       onClick={handleSendMessage}
                       disabled={!inputValue.trim() || isGenerating}
-                      className={`p-1.5 rounded-md ring-1 ring-white/15 shadow-sm transition-colors ${
+                      className={`glass p-1.5 transition-colors ${
                         inputValue.trim() && !isGenerating
                           ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
-                          : "bg-white/30 dark:bg-[#1f1f22]/30 backdrop-blur-md text-gray-400"
+                          : "bg-white/30 dark:bg-[#1f1f22]/30 text-gray-400"
                       }`}
                     >
                       <ArrowUp
@@ -675,16 +664,10 @@ const QaAIUI = () => {
                   <button
                     key={mode.id}
                     onClick={() => handleModeSelect(mode.id)}
-                    className={`
-    flex items-center gap-3 pl-2 pr-4 py-2 rounded-full transition
-    ring-1 ring-black/10 hover:ring-black/20
-    ${selectedMode === mode.id
-      ? 'bg-white/80 dark:bg-gray-700/60 backdrop-blur-sm'
-      : 'bg-white/60 dark:bg-gray-600/50 backdrop-blur-[2px]'
-    }`}
+                    className={`glass flex items-center gap-3 pl-2 pr-4 py-2 rounded-full transition ring-1 ring-black/10 hover:ring-black/20 ${selectedMode === mode.id ? 'ring-black/20 dark:ring-white/20' : ''}`}
                   >
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white dark:bg-gray-800 ring-1 ring-black/5">
-                      <mode.icon strokeWidth={2} className="h-4 w-4 text-gray-700 dark:text-gray-200" />
+                      <mode.icon strokeWidth={1.8} className="h-4 w-4 text-gray-700 dark:text-gray-200" />
                     </span>
                     <span className="text-sm font-medium tracking-tight text-gray-800 dark:text-gray-100">
                       {mode.label}
@@ -708,7 +691,7 @@ const QaAIUI = () => {
                 <div className="max-w-3xl mx-auto px-4 py-6">
                   {selectedMode && (
                     <div className="text-center mb-6">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-full">
+                      <div className="glass inline-flex items-center gap-2 px-3 py-1.5 rounded-full">
                         {React.createElement(
                           modes.find((m) => m.id === selectedMode).icon,
                           {
@@ -733,7 +716,7 @@ const QaAIUI = () => {
                       {message.type === "user" ? (
                         <div className="flex items-start gap-3 justify-end">
                           <div>
-                          <div className="px-4 py-2.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-2xl text-gray-900 dark:text-gray-100">
+                          <div className="glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100">
                             {message.content}
                           </div>
                             <div className="text-xs text-gray-500 mt-1 text-right">
@@ -747,7 +730,7 @@ const QaAIUI = () => {
                       ) : (
                         <div>
                           <div
-                            className={`px-4 py-2.5 bg-white/70 dark:bg-[#1f1f22]/60 backdrop-blur-md ring-1 ring-white/15 shadow-sm rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
+                            className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
                           >
                             {message.content
                               ? renderAssistantContent(message.content)
@@ -800,10 +783,10 @@ const QaAIUI = () => {
                       <button
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isGenerating}
-                        className={`p-1.5 rounded-md ring-1 ring-white/15 shadow-sm transition-colors ${
+                        className={`glass p-1.5 transition-colors ${
                           inputValue.trim() && !isGenerating
                             ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
-                            : "bg-white/30 dark:bg-[#1f1f22]/30 backdrop-blur-md text-gray-400"
+                            : "bg-white/30 dark:bg-[#1f1f22]/30 text-gray-400"
                         }`}
                       >
                         <ArrowUp

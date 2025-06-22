@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,23 +34,23 @@
 :root {
   --brand-primary: #4f46e5;
   --brand-secondary: #9333ea;
-  --bg-gradient: linear-gradient(to bottom right, #f8fafc, #e0e7ff);
+  --bg-gradient: radial-gradient(circle at top left, #f8fafc, #e0e7ff);
 }
 
 html[data-mode='legal'] {
-  --bg-gradient: linear-gradient(to bottom right, #f0fdf4, #dcfce7);
+  --bg-gradient: radial-gradient(circle at top left, #f0fdf4, #dcfce7);
 }
 
 html[data-mode='finance'] {
-  --bg-gradient: linear-gradient(to bottom right, #eff6ff, #dbeafe);
+  --bg-gradient: radial-gradient(circle at top left, #eff6ff, #dbeafe);
 }
 
 html[data-mode='medical'] {
-  --bg-gradient: linear-gradient(to bottom right, #fef2f2, #fee2e2);
+  --bg-gradient: radial-gradient(circle at top left, #fef2f2, #fee2e2);
 }
 
 html[data-mode='agent'] {
-  --bg-gradient: linear-gradient(to bottom right, #faf5ff, #ede9fe);
+  --bg-gradient: radial-gradient(circle at top left, #faf5ff, #ede9fe);
 }
 
 body {
@@ -58,5 +60,28 @@ body {
 html.dark {
   background-color: #1f2937;
   color: #f3f4f6;
-  --bg-gradient: linear-gradient(to bottom right, #1f2937, #111827);
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-md bg-white/70 dark:bg-[#1f1f22]/60 ring-1 ring-white/15 shadow-sm;
+  }
+=======
+  --bg-gradient: radial-gradient(circle at top left, #1f2937, #111827);
+}
+
+html.dark[data-mode='legal'] {
+  --bg-gradient: radial-gradient(circle at top left, #064e3b, #022c22);
+}
+
+html.dark[data-mode='finance'] {
+  --bg-gradient: radial-gradient(circle at top left, #1e3a8a, #1e40af);
+}
+
+html.dark[data-mode='medical'] {
+  --bg-gradient: radial-gradient(circle at top left, #7f1d1d, #450a0a);
+}
+
+html.dark[data-mode='agent'] {
+  --bg-gradient: radial-gradient(circle at top left, #4c1d95, #2e1065);
+
 }
