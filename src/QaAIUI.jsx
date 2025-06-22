@@ -53,20 +53,20 @@ const renderAssistantContent = (content) => {
     if (trimmed === "") return <br key={idx} />;
     if (/^\d+\.\s/.test(trimmed)) {
       return (
-        <div key={idx} className="mb-1 font-syrene">
+        <div key={idx} className="mb-1 font-sans">
           {trimmed}
         </div>
       );
     }
     if (trimmed.startsWith("- Reasoning:")) {
       return (
-        <div key={idx} className="ml-4 text-sm text-gray-500 font-syrene">
+        <div key={idx} className="ml-4 text-sm text-gray-500 font-sans">
           {trimmed}
         </div>
       );
     }
     return (
-      <div key={idx} className="font-syrene">
+      <div key={idx} className="font-sans">
         {trimmed}
       </div>
     );
@@ -541,12 +541,12 @@ const QaAIUI = () => {
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto min-h-full animate-fade-in">
               <h1
-                className="text-3xl font-normal text-gray-900 mb-8 font-syrene"
+                className="text-3xl font-normal text-gray-900 mb-8 font-sans"
               >
                 Good afternoon, Oliver
               </h1>
               <p
-                className="font-syrene text-gray-600 dark:text-gray-300 text-lg mb-12"
+                className="font-sans text-gray-600 dark:text-gray-300 text-lg mb-12"
                 style={{
                   letterSpacing: "-0.02em",
                 }}
@@ -603,7 +603,7 @@ const QaAIUI = () => {
               </div>
               <p
                 data-testid="tagline"
-                className="font-syrene text-gray-500 text-sm mt-12"
+                className="font-sans text-gray-500 text-sm mt-12"
                 style={{
                   letterSpacing: "0.01em",
                 }}
