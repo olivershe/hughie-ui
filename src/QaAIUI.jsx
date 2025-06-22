@@ -607,7 +607,7 @@ const QaAIUI = () => {
               <p className="text-lg text-gray-600 dark:text-gray-300">
                 How can I help you today?
               </p>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(144px,1fr))] gap-4 max-w-md mx-auto mt-10">
+              <div className="flex justify-center gap-4 flex-wrap md:flex-nowrap max-w-max mx-auto mt-10">
                 {suggestions.map((s, idx) => (
                   <PromptCard
                     key={idx}
@@ -618,7 +618,7 @@ const QaAIUI = () => {
                   />
                 ))}
               </div>
-            <div className="w-full max-w-xl mt-12">
+            <div className="w-full max-w-xl mt-8 md:mt-10">
               <div className="flex items-center glass rounded-2xl px-4 py-3">
                 <textarea
                   ref={inputRef}
