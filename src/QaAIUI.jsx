@@ -48,19 +48,18 @@ Additional rules:
 - Be neutral and accurate in tone.`;
 
 
-const IdeaCard = ({ icon: Icon, title, subtitle, onClick }) => (
-  <button
-    onClick={onClick}
-    className="w-40 h-44 rounded-3xl bg-white/60 dark:bg-gray-700/60 backdrop-blur-md shadow ring-1 ring-black/5 p-4 flex flex-col justify-between text-left hover:bg-white/70 dark:hover:bg-gray-700 transition-colors"
-  >
-    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white dark:bg-gray-800 ring-1 ring-black/5">
-      <Icon strokeWidth={2} className="h-4 w-4 text-gray-800 dark:text-gray-200" />
+const IdeaCard = ({ icon: Icon, title, subtitle }) => (
+  <div className="w-56 h-64 p-6 rounded-3xl glass flex flex-col justify-between">
+    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-900/90 text-white">
+      <Icon strokeWidth={1.6} className="h-5 w-5" />
     </span>
-    <div className="space-y-1">
-      <p className="text-sm font-medium leading-tight text-gray-800 dark:text-gray-100">{title}</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
+    <div>
+      <h3 className="text-base font-medium tracking-tight text-gray-900 dark:text-white">
+        {title}
+      </h3>
+      <p className="text-sm text-gray-500">{subtitle}</p>
     </div>
-  </button>
+  </div>
 );
 
 const renderAssistantContent = (content) => {
@@ -466,7 +465,7 @@ const QaAIUI = () => {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -260, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className={`w-64 h-full ${themeColors[selectedMode || "null"].sidebar} border-r border-black/5 dark:border-white/10 overflow-y-auto glass`}
+            className={`w-64 h-full ${themeColors[selectedMode || "null"].sidebar} overflow-y-auto glass`}
           >
             <div className="p-4">
               <button
@@ -601,21 +600,14 @@ const QaAIUI = () => {
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto min-h-full animate-fade-in">
-              <h1
-                className="text-3xl font-normal text-gray-900 mb-8 font-sans"
-              >
+            <div className="flex flex-col items-center justify-center px-4 py-8 max-w-2xl mx-auto min-h-full space-y-6 animate-fade-in">
+              <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
                 Good afternoon, Oliver
               </h1>
-              <p
-                className="font-sans text-gray-600 dark:text-gray-300 text-lg mb-12"
-                style={{
-                  letterSpacing: "-0.02em",
-                }}
-              >
+              <p className="text-lg text-gray-600 dark:text-gray-300">
                 How can I help you today?
               </p>
-              <div className="grid sm:grid-cols-3 gap-4 mb-8 w-full">
+              <div className="grid sm:grid-cols-3 gap-4 w-full">
                 {suggestions.map((s, idx) => (
                   <IdeaCard
                     key={idx}
@@ -627,38 +619,27 @@ const QaAIUI = () => {
                 ))}
               </div>
             <div className="w-full max-w-xl mb-6">
-                <div className="relative">
-                  <textarea
-                    ref={inputRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Message QaAI"
-                    className="w-full px-4 py-3 pr-12 rounded-2xl border border-gray-300 focus:border-gray-400 focus:outline-none resize-none text-base bg-white dark:bg-gray-700 dark:text-gray-100"
-                    rows="1"
-                    style={{ minHeight: "52px" }}
-                    disabled={isGenerating}
-                  />
-                  <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                    <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors">
-                      <Paperclip className="w-5 h-5 text-gray-400" />
-                    </button>
-                    <button
-                      onClick={handleSendMessage}
-                      disabled={!inputValue.trim() || isGenerating}
-                      className={`glass p-1.5 transition-colors ${
-                        inputValue.trim() && !isGenerating
-                          ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
-                          : "bg-white/30 dark:bg-[#1f1f22]/30 text-gray-400"
-                      }`}
-                    >
-                      <ArrowUp
-                        className={`w-5 h-5 ${inputValue.trim() && !isGenerating ? "text-white" : "text-gray-400 dark:text-gray-300"}`}
-                      />
-                    </button>
-                  </div>
-                </div>
+              <div className="flex items-center glass rounded-2xl px-4 py-3">
+                <textarea
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Message QaAI"
+                  className="flex-1 glass bg-transparent resize-none placeholder:text-gray-400"
+                  rows="1"
+                  disabled={isGenerating}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputValue.trim() || isGenerating}
+                  className="ml-2 h-8 px-3 flex items-center justify-center rounded-full bg-gradient-to-tr from-rose-400 to-amber-400 text-white text-sm shadow hover:brightness-110 transition"
+                >
+                  Send
+                  <ArrowUp className="ml-1 w-4 h-4 stroke-[2.2]" />
+                </button>
               </div>
+            </div>
               <div className="flex gap-3 flex-wrap justify-center">
                 {modes.map((mode) => (
                   <button
@@ -688,7 +669,7 @@ const QaAIUI = () => {
           ) : (
             <div className="flex flex-col h-full">
               <div className="flex-1 overflow-y-auto">
-                <div className="max-w-3xl mx-auto px-4 py-6">
+                <div className="max-w-3xl mx-auto px-4 py-6 pb-24">
                   {selectedMode && (
                     <div className="text-center mb-6">
                       <div className="glass inline-flex items-center gap-2 px-3 py-1.5 rounded-full">
@@ -765,35 +746,24 @@ const QaAIUI = () => {
               {/* Input area at bottom */}
               <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-4">
                 <div className="max-w-3xl mx-auto">
-                  <div className="relative">
+                  <div className="flex items-center glass rounded-2xl px-4 py-3">
                     <textarea
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder={`Reply to QaAI${selectedMode ? ` (${modes.find((m) => m.id === selectedMode)?.label} mode)` : ""}...`}
-                      className="w-full px-4 py-3 pr-24 rounded-2xl border border-gray-300 focus:border-gray-400 focus:outline-none resize-none text-base bg-white dark:bg-gray-700 dark:text-gray-100"
+                      className="flex-1 glass bg-transparent resize-none placeholder:text-gray-400"
                       rows="1"
-                      style={{ minHeight: "52px" }}
                       disabled={isGenerating}
                     />
-                    <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                      <button className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors">
-                        <Paperclip className="w-5 h-5 text-gray-400" />
-                      </button>
-                      <button
-                        onClick={handleSendMessage}
-                        disabled={!inputValue.trim() || isGenerating}
-                        className={`glass p-1.5 transition-colors ${
-                          inputValue.trim() && !isGenerating
-                            ? "bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white"
-                            : "bg-white/30 dark:bg-[#1f1f22]/30 text-gray-400"
-                        }`}
-                      >
-                        <ArrowUp
-                          className={`w-5 h-5 ${inputValue.trim() && !isGenerating ? "text-white" : "text-gray-400 dark:text-gray-300"}`}
-                        />
-                      </button>
-                    </div>
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!inputValue.trim() || isGenerating}
+                      className="ml-2 h-8 px-3 flex items-center justify-center rounded-full bg-gradient-to-tr from-rose-400 to-amber-400 text-white text-sm shadow hover:brightness-110 transition"
+                    >
+                      Send
+                      <ArrowUp className="ml-1 w-4 h-4 stroke-[2.2]" />
+                    </button>
                   </div>
                   {selectedMode && (
                     <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
