@@ -154,7 +154,7 @@ const QaAIUI = () => {
     { id: "agent", label: "Agent mode", icon: Cpu },
   ];
 
-  const suggestions = [
+  const defaultSuggestions = [
     {
       icon: Scale,
       title: "Tenancy question",
@@ -174,6 +174,90 @@ const QaAIUI = () => {
       prompt: "Should I see a doctor about persistent headaches?",
     },
   ];
+
+  const suggestionsByMode = {
+    null: defaultSuggestions,
+    legal: [
+      {
+        icon: Scale,
+        title: "Tenancy question",
+        subtitle: "Is my eviction notice valid?",
+        prompt: "Is my landlord's eviction notice valid under UK law?",
+      },
+      {
+        icon: Scale,
+        title: "Contract dispute",
+        subtitle: "What are my rights?",
+        prompt: "What are my rights regarding a breach of contract?",
+      },
+      {
+        icon: Scale,
+        title: "Small claims",
+        subtitle: "Can I sue for damages?",
+        prompt: "Can I file a small claims lawsuit for property damage?",
+      },
+    ],
+    finance: [
+      {
+        icon: DollarSign,
+        title: "Budget help",
+        subtitle: "Create a monthly budget plan",
+        prompt: "Can you help me create a monthly budget plan?",
+      },
+      {
+        icon: DollarSign,
+        title: "Savings goal",
+        subtitle: "Plan for a big purchase",
+        prompt: "How should I save for a down payment on a house?",
+      },
+      {
+        icon: DollarSign,
+        title: "Explain APR",
+        subtitle: "What does APR mean?",
+        prompt: "What does APR mean on a credit card?",
+      },
+    ],
+    medical: [
+      {
+        icon: Stethoscope,
+        title: "Health query",
+        subtitle: "Should I see a doctor?",
+        prompt: "Should I see a doctor about persistent headaches?",
+      },
+      {
+        icon: Stethoscope,
+        title: "Symptoms",
+        subtitle: "What causes dizziness?",
+        prompt: "What might be causing frequent dizziness?",
+      },
+      {
+        icon: Stethoscope,
+        title: "Medication info",
+        subtitle: "Side effects of ibuprofen",
+        prompt: "What are common side effects of ibuprofen?",
+      },
+    ],
+    agent: [
+      {
+        icon: Cpu,
+        title: "Summarize page",
+        subtitle: "Get a quick brief",
+        prompt: "Summarize the main points of this article.",
+      },
+      {
+        icon: Cpu,
+        title: "Plan tasks",
+        subtitle: "Organize a project",
+        prompt: "Break down the steps to launch a website.",
+      },
+      {
+        icon: Cpu,
+        title: "Code assistant",
+        subtitle: "Help with debugging",
+        prompt: "Why am I getting an undefined variable error in my JS code?",
+      },
+    ],
+  };
 
   // Theme colors for main and sidebar
   const themeColors = {
@@ -198,6 +282,8 @@ const QaAIUI = () => {
       sidebar: "bg-purple-100 dark:bg-gray-800",
     },
   };
+
+  const suggestions = suggestionsByMode[selectedMode || "null"];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -625,7 +711,7 @@ const QaAIUI = () => {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Message QaAI"
+                  placeholder={`Message QaAI${selectedMode ? ` in ${modes.find((m) => m.id === selectedMode)?.label} mode` : ''}`}
                   className="flex-1 bg-transparent outline-none resize-none placeholder:text-gray-400 text-[15px] leading-6"
                   rows="1"
                   disabled={isGenerating}

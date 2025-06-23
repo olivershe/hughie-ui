@@ -59,3 +59,31 @@ test('opening a conversation updates the mode badge', async () => {
   const badges = await screen.findAllByText(/Legal Mode/i);
   expect(badges.length).toBeGreaterThan(0);
 });
+
+test('placeholder reflects selected mode on landing screen', () => {
+  render(<App />);
+  fireEvent.change(screen.getByPlaceholderText('sk-...'), {
+    target: { value: 'test-key' }
+  });
+  fireEvent.click(screen.getByText('Continue'));
+
+  fireEvent.click(screen.getByText('Legal'));
+
+  expect(
+    screen.getByPlaceholderText(/Message QaAI in Legal mode/i)
+  ).toBeInTheDocument();
+});
+
+test('suggestions change when mode is selected', () => {
+  render(<App />);
+  fireEvent.change(screen.getByPlaceholderText('sk-...'), {
+    target: { value: 'test-key' }
+  });
+  fireEvent.click(screen.getByText('Continue'));
+
+  fireEvent.click(screen.getByText('Finance'));
+  expect(screen.getByText(/Savings goal/i)).toBeInTheDocument();
+
+  fireEvent.click(screen.getByText('Legal'));
+  expect(screen.getByText(/Contract dispute/i)).toBeInTheDocument();
+});
