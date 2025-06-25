@@ -366,6 +366,8 @@ const QaAIUI = () => {
           systemPrompt +=
             "democratizing expertise across legal, financial, and medical domains.";
       }
+      systemPrompt +=
+        "\n\nRespond ONLY with a JSON object containing the fields 'answer', 'reasoning', 'buttons', and 'confidence'. The 'answer' value must be Markdown.";
 
       console.log("Sending request to OpenAI", {
         mode: selectedMode,
@@ -382,9 +384,14 @@ const QaAIUI = () => {
           body: JSON.stringify({
             model: "gpt-4o-2024-08-06",
             stream: true,
+            response_format: { type: "json_object" },
+            logprobs: 5,
             messages: [
               { role: "system", content: systemPrompt },
-              { role: "user", content: userMessage },
+              {
+                role: "user",
+                content: `${userMessage}\n\nPlease reply using the required JSON format.`,
+              },
             ],
           }),
         },
@@ -407,6 +414,7 @@ const QaAIUI = () => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let jsonString = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -420,15 +428,31 @@ const QaAIUI = () => {
           const json = JSON.parse(cleaned.replace(/^data: /, ""));
           const content = json.choices?.[0]?.delta?.content;
           if (content) {
-            setMessages((prev) => {
-              const msgs = [...prev];
-              msgs[msgs.length - 1].content += content;
-              return msgs;
-            });
-            // Avoid updating conversations during streaming to prevent
-            // duplicating content. We'll sync after streaming completes.
+            jsonString += content;
           }
         }
+      }
+
+      try {
+        const obj = JSON.parse(jsonString);
+        setMessages((prev) => {
+          const msgs = [...prev];
+          msgs[msgs.length - 1] = {
+            ...msgs[msgs.length - 1],
+            content: obj.answer,
+            reasoning: obj.reasoning,
+            buttons: obj.buttons,
+            confidence: obj.confidence,
+          };
+          return msgs;
+        });
+      } catch (parseErr) {
+        console.error("Failed to parse assistant JSON", parseErr);
+        setMessages((prev) => {
+          const msgs = [...prev];
+          msgs[msgs.length - 1].content = jsonString;
+          return msgs;
+        });
       }
     } catch (e) {
       console.error("OpenAI API error", {
