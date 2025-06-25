@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createParser } from "eventsource-parser";
 import {
   Paperclip,
   Menu,
@@ -406,29 +407,25 @@ const QaAIUI = () => {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = "";
+      const parser = createParser((evt) => {
+        if (evt.type !== "event" || evt.data === "[DONE]") return;
+        const obj = JSON.parse(evt.data);
+        const content = obj.choices?.[0]?.delta?.content;
+        if (content) {
+          setMessages((prev) => {
+            const msgs = [...prev];
+            msgs[msgs.length - 1].content += content;
+            return msgs;
+          });
+          // Avoid updating conversations during streaming to prevent
+          // duplicating content. We'll sync after streaming completes.
+        }
+      });
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop();
-        for (const line of lines) {
-          const cleaned = line.trim();
-          if (!cleaned || cleaned === "data: [DONE]") continue;
-          const json = JSON.parse(cleaned.replace(/^data: /, ""));
-          const content = json.choices?.[0]?.delta?.content;
-          if (content) {
-            setMessages((prev) => {
-              const msgs = [...prev];
-              msgs[msgs.length - 1].content += content;
-              return msgs;
-            });
-            // Avoid updating conversations during streaming to prevent
-            // duplicating content. We'll sync after streaming completes.
-          }
-        }
+        parser.feed(decoder.decode(value));
       }
     } catch (e) {
       console.error("OpenAI API error", {
