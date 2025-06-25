@@ -496,9 +496,11 @@ const QaAIUI = () => {
     );
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
+  // Trigger message send when Enter is pressed without the Shift key using
+  // the KeyboardEvent received from the onKeyDown handler.
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
       handleSendMessage();
     }
   };
@@ -710,7 +712,7 @@ const QaAIUI = () => {
                   ref={inputRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyPress}
                   placeholder={`Message QaAI${selectedMode ? ` in ${modes.find((m) => m.id === selectedMode)?.label} mode` : ''}`}
                   className="flex-1 bg-transparent outline-none resize-none placeholder:text-gray-400 text-[15px] leading-6"
                   rows="1"
@@ -836,7 +838,7 @@ const QaAIUI = () => {
                     <textarea
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
-                      onKeyPress={handleKeyPress}
+                      onKeyDown={handleKeyPress}
                       placeholder={`Reply to QaAI${selectedMode ? ` (${modes.find((m) => m.id === selectedMode)?.label} mode)` : ""}...`}
                       className="flex-1 bg-transparent outline-none resize-none placeholder:text-gray-400 text-[15px] leading-6"
                       rows="1"
