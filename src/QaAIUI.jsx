@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
+import Badge from "./Badge";
 
 const legalInstructions = `You are a legal assistant AI built to help users clarify vague legal questions and provide structured, jurisdiction-specific answers. Your task is to:
 
@@ -795,7 +796,10 @@ const QaAIUI = () => {
                           </div>
                         </div>
                       ) : (
-                        <div>
+                        <div className="relative">
+                          {typeof message.confidence === "number" && (
+                            <Badge score={message.confidence} />
+                          )}
                           <div
                             className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
                           >
