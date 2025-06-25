@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
+import ReasoningCard from "./ReasoningCard";
 
 const legalInstructions = `You are a legal assistant AI built to help users clarify vague legal questions and provide structured, jurisdiction-specific answers. Your task is to:
 
@@ -772,60 +773,76 @@ const QaAIUI = () => {
                       </div>
                     </div>
                   )}
-                  {messages.map((message, index) => (
-                    <motion.div
-                      key={message.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 35 }}
-                      className={message.type === "user" ? "flex justify-end mb-8" : "mb-8"}
-                    >
-                      {message.type === "user" ? (
-                        <div className="flex items-start gap-3 justify-end">
-                          <div>
-                          <div className="glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100">
-                            {message.content}
-                          </div>
-                            <div className="text-xs text-gray-500 mt-1 text-right">
-                              {message.timestamp}
+                  {messages.map((message, index) => {
+                    if (message.type === "reasoning") return null;
+                    const next = messages[index + 1];
+                    const showReasoning =
+                      message.type === "assistant" && next?.type === "reasoning";
+                    return (
+                      <React.Fragment key={message.id}>
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ type: "spring", stiffness: 300, damping: 35 }}
+                          className={
+                            message.type === "user" ? "flex justify-end mb-8" : "mb-8"
+                          }
+                        >
+                          {message.type === "user" ? (
+                            <div className="flex items-start gap-3 justify-end">
+                              <div>
+                                <div className="glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100">
+                                  {message.content}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1 text-right">
+                                  {message.timestamp}
+                                </div>
+                              </div>
+                              <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+                                <User className="w-5 h-5 text-gray-700" />
+                              </div>
                             </div>
-                          </div>
-                          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                            <User className="w-5 h-5 text-gray-700" />
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <div
-                            className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
-                          >
-                            {message.content
-                              ? renderAssistantContent(message.content)
-                              : isGenerating &&
-                                index === messages.length - 1 && (
-                                  <div className="flex gap-1">
-                                    <div
-                                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                      style={{ animationDelay: "0ms" }}
-                                    ></div>
-                                    <div
-                                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                      style={{ animationDelay: "150ms" }}
-                                    ></div>
-                                    <div
-                                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                      style={{ animationDelay: "300ms" }}
-                                    ></div>
-                                  </div>
-                                )}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {message.timestamp}
-                          </div>
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
+                          ) : (
+                            <div>
+                              <div
+                                className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${
+                                  isGenerating && index === messages.length - 1
+                                    ? "blinking-cursor"
+                                    : ""
+                                }`}
+                              >
+                                {message.content
+                                  ? renderAssistantContent(message.content)
+                                  : isGenerating &&
+                                    index === messages.length - 1 && (
+                                      <div className="flex gap-1">
+                                        <div
+                                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                          style={{ animationDelay: "0ms" }}
+                                        ></div>
+                                        <div
+                                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                          style={{ animationDelay: "150ms" }}
+                                        ></div>
+                                        <div
+                                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                          style={{ animationDelay: "300ms" }}
+                                        ></div>
+                                      </div>
+                                    )}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {message.timestamp}
+                              </div>
+                            </div>
+                          )}
+                        </motion.div>
+                        {showReasoning && (
+                          <ReasoningCard key={`reasoning-${next.id}`} text={next.content} />
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
                   <div ref={messagesEndRef} />
                 </div>
               </div>
