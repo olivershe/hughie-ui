@@ -16,6 +16,36 @@ import {
   Moon,
 } from "lucide-react";
 
+/**
+ * @typedef {Object} AssistantMsg
+ * @property {number} id
+ * @property {"assistant"} type
+ * @property {string} content
+ * @property {string} timestamp
+ * @property {number} [confidence]
+ *
+ * @typedef {Object} UserMsg
+ * @property {number} id
+ * @property {"user"} type
+ * @property {string} content
+ * @property {string} timestamp
+ *
+ * @typedef {Object} ReasoningMsg
+ * @property {number} id
+ * @property {"reasoning"} type
+ * @property {string} content
+ * @property {string} timestamp
+ *
+ * @typedef {AssistantMsg | UserMsg | ReasoningMsg} Msg
+ *
+ * @typedef {Object} Conversation
+ * @property {number} id
+ * @property {string} title
+ * @property {Msg[]} messages
+ * @property {string} time
+ * @property {string} [mode]
+ */
+
 const legalInstructions = `You are a legal assistant AI built to help users clarify vague legal questions and provide structured, jurisdiction-specific answers. Your task is to:
 
 1. Reformulate vague or informal legal queries into clear, formal prompts ("Refined Prompt").
@@ -90,6 +120,7 @@ const renderAssistantContent = (content) => {
 };
 
 const QaAIUI = () => {
+  /** @type {[Msg[], React.Dispatch<React.SetStateAction<Msg[]>>]} */
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [selectedMode, setSelectedMode] = useState(null);
@@ -110,6 +141,7 @@ const QaAIUI = () => {
     }
   }, [apiKey]);
 
+  /** @type {[Conversation[], React.Dispatch<React.SetStateAction<Conversation[]>>]} */
   const [conversations, setConversations] = useState(() => {
     const saved = localStorage.getItem("conversations");
     return saved ? JSON.parse(saved) : [];
@@ -326,20 +358,20 @@ const QaAIUI = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
-    const replyId = Date.now();
-    const placeholder = {
-      id: replyId,
-      type: "assistant",
+    const reasoningId = Date.now();
+    const reasoningPlaceholder = {
+      id: reasoningId,
+      type: "reasoning",
       content: "",
       timestamp,
     };
-    setMessages((prev) => [...prev, placeholder]);
+    setMessages((prev) => [...prev, reasoningPlaceholder]);
     setConversations((prev) =>
       prev.map((c) =>
         c.id === currentConversationId
           ? {
               ...c,
-              messages: [...(c.messages || []), placeholder],
+              messages: [...(c.messages || []), reasoningPlaceholder],
               time: timestamp,
             }
           : c,
@@ -407,6 +439,7 @@ const QaAIUI = () => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let collected = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -420,15 +453,45 @@ const QaAIUI = () => {
           const json = JSON.parse(cleaned.replace(/^data: /, ""));
           const content = json.choices?.[0]?.delta?.content;
           if (content) {
-            setMessages((prev) => {
-              const msgs = [...prev];
-              msgs[msgs.length - 1].content += content;
-              return msgs;
-            });
+            collected += content;
             // Avoid updating conversations during streaming to prevent
             // duplicating content. We'll sync after streaming completes.
           }
         }
+      }
+      try {
+        const parsed = JSON.parse(collected);
+        setMessages((prev) => {
+          const msgs = [...prev];
+          const idx = msgs.findIndex((m) => m.id === reasoningId);
+          if (idx !== -1) {
+            msgs[idx].content = parsed.reasoning || "";
+          }
+          const assistantMsg = {
+            id: Date.now(),
+            type: "assistant",
+            content: parsed.answer || "",
+            timestamp,
+            ...(typeof parsed.confidence === "number" && {
+              confidence: parsed.confidence,
+            }),
+          };
+          msgs.push(assistantMsg);
+          return msgs;
+        });
+      } catch (parseErr) {
+        setMessages((prev) => {
+          const msgs = [...prev];
+          const idx = msgs.findIndex((m) => m.id === reasoningId);
+          if (idx !== -1) {
+            msgs[idx] = {
+              ...msgs[idx],
+              type: "assistant",
+              content: collected,
+            };
+          }
+          return msgs;
+        });
       }
     } catch (e) {
       console.error("OpenAI API error", {
