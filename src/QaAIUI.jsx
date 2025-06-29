@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createParser } from "eventsource-parser";
 import {
   Paperclip,
   Menu,
@@ -15,6 +16,7 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
+import Badge from "./Badge";
 
 /**
  * @typedef {Object} AssistantMsg
@@ -398,6 +400,8 @@ const QaAIUI = () => {
           systemPrompt +=
             "democratizing expertise across legal, financial, and medical domains.";
       }
+      systemPrompt +=
+        "\n\nRespond ONLY with a JSON object containing the fields 'answer', 'reasoning', 'buttons', and 'confidence'. The 'answer' value must be Markdown.";
 
       console.log("Sending request to OpenAI", {
         mode: selectedMode,
@@ -414,9 +418,14 @@ const QaAIUI = () => {
           body: JSON.stringify({
             model: "gpt-4o-2024-08-06",
             stream: true,
+            response_format: { type: "json_object" },
+            logprobs: 5,
             messages: [
               { role: "system", content: systemPrompt },
-              { role: "user", content: userMessage },
+              {
+                role: "user",
+                content: `${userMessage}\n\nPlease reply using the required JSON format.`,
+              },
             ],
           }),
         },
@@ -559,9 +568,11 @@ const QaAIUI = () => {
     );
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
+  // Trigger message send when Enter is pressed without the Shift key using
+  // the KeyboardEvent received from the onKeyDown handler.
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
       handleSendMessage();
     }
   };
@@ -773,7 +784,7 @@ const QaAIUI = () => {
                   ref={inputRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyPress}
                   placeholder={`Message QaAI${selectedMode ? ` in ${modes.find((m) => m.id === selectedMode)?.label} mode` : ''}`}
                   className="flex-1 bg-transparent outline-none resize-none placeholder:text-gray-400 text-[15px] leading-6"
                   rows="1"
@@ -858,7 +869,10 @@ const QaAIUI = () => {
                           </div>
                         </div>
                       ) : (
-                        <div>
+                        <div className="relative">
+                          {typeof message.confidence === "number" && (
+                            <Badge score={message.confidence} />
+                          )}
                           <div
                             className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${isGenerating && index === messages.length - 1 ? "blinking-cursor" : ""}`}
                           >
@@ -899,7 +913,7 @@ const QaAIUI = () => {
                     <textarea
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
-                      onKeyPress={handleKeyPress}
+                      onKeyDown={handleKeyPress}
                       placeholder={`Reply to QaAI${selectedMode ? ` (${modes.find((m) => m.id === selectedMode)?.label} mode)` : ""}...`}
                       className="flex-1 bg-transparent outline-none resize-none placeholder:text-gray-400 text-[15px] leading-6"
                       rows="1"
