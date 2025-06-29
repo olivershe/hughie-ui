@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import ReasoningCard from "../ReasoningCard";
+import useTypewriter from "../hooks/useTypewriter";
 
 const modeColor = {
   legal: "bg-emerald-300",
@@ -48,6 +49,8 @@ const ChatBubble = ({ message, isLast, isGenerating }) => {
   if (message.role === "reasoning") {
     return <ReasoningCard text={message.text} />;
   }
+  const showTyping = message.role === "assistant" && isGenerating && isLast;
+  const typedText = useTypewriter(showTyping ? message.md || "" : "");
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -76,18 +79,19 @@ const ChatBubble = ({ message, isLast, isGenerating }) => {
               isGenerating && isLast ? "blinking-cursor" : ""
             }`}
           >
-            {message.md ? (
-              renderAssistantContent(message.md)
-            ) : (
-              isGenerating &&
-              isLast && (
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
-                </div>
-              )
-            )}
+            {showTyping
+              ? typedText
+                ? renderAssistantContent(typedText)
+                : (
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                    </div>
+                  )
+              : message.md
+              ? renderAssistantContent(message.md)
+              : null}
           </div>
           {message.mode && (
             <span
