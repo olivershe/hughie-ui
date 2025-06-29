@@ -26,6 +26,7 @@ import Badge from "./Badge";
  * @property {"assistant"} role
  * @property {string} md
  * @property {string} ts
+ * @property {string} [mode]
  * @property {number} [confidence]
 *
  * @typedef {Object} UserMsg
@@ -423,6 +424,7 @@ const QaAIUI = () => {
                 role: "assistant",
                 md: node.answer,
                 ts,
+                mode: selectedMode,
                 ...(typeof node.confidence === "number" && {
                   confidence: node.confidence,
                 }),
@@ -434,6 +436,7 @@ const QaAIUI = () => {
                 msgs[idx] = {
                   ...msgs[idx],
                   md: node.answer,
+                  mode: selectedMode,
                   ...(typeof node.confidence === "number" && {
                     confidence: node.confidence,
                   }),
