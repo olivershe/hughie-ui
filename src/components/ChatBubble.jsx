@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
+import ReasoningCard from "../ReasoningCard";
 
 export const renderAssistantContent = (content) => {
   if (!content) return null;
@@ -30,22 +31,25 @@ export const renderAssistantContent = (content) => {
 };
 
 const ChatBubble = ({ message, isLast, isGenerating }) => {
+  if (message.role === "reasoning") {
+    return <ReasoningCard text={message.text} />;
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 35 }}
-      className={message.type === "user" ? "flex justify-end mb-8" : "mb-8"}
+      className={message.role === "user" ? "flex justify-end mb-8" : "mb-8"}
     >
-      {message.type === "user" ? (
+      {message.role === "user" ? (
         <div className="flex items-start gap-3 justify-end">
           <div>
             <div className="glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100">
-              {message.content}
+              {message.md}
             </div>
-            <div className="text-xs text-gray-500 mt-1 text-right">
-              {message.timestamp}
-            </div>
+            {message.ts && (
+              <div className="text-xs text-gray-500 mt-1 text-right">{message.ts}</div>
+            )}
           </div>
           <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
             <User className="w-5 h-5 text-gray-700" />
@@ -58,8 +62,8 @@ const ChatBubble = ({ message, isLast, isGenerating }) => {
               isGenerating && isLast ? "blinking-cursor" : ""
             }`}
           >
-            {message.content ? (
-              renderAssistantContent(message.content)
+            {message.md ? (
+              renderAssistantContent(message.md)
             ) : (
               isGenerating &&
               isLast && (
@@ -71,7 +75,7 @@ const ChatBubble = ({ message, isLast, isGenerating }) => {
               )
             )}
           </div>
-          <div className="text-xs text-gray-500 mt-1">{message.timestamp}</div>
+          {message.ts && <div className="text-xs text-gray-500 mt-1">{message.ts}</div>}
         </div>
       )}
     </motion.div>
