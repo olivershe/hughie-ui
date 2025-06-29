@@ -46,11 +46,12 @@ export const renderAssistantContent = (content) => {
 };
 
 const ChatBubble = ({ message, isLast, isGenerating }) => {
+  const showTyping = message.role === "assistant" && isGenerating && isLast;
+  const typedText = useTypewriter(showTyping ? message.md || "" : "");
+
   if (message.role === "reasoning") {
     return <ReasoningCard text={message.text} />;
   }
-  const showTyping = message.role === "assistant" && isGenerating && isLast;
-  const typedText = useTypewriter(showTyping ? message.md || "" : "");
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
