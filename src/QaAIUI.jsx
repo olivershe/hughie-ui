@@ -449,13 +449,22 @@ const QaAIUI = () => {
         });
       };
 
+      let buffer = "";
       const parser = createParser((evt) => {
-        if (evt.type !== "event" || evt.data === "[DONE]") return;
-        try {
-          handleNode(JSON.parse(evt.data));
-        } catch (err) {
-          console.error("Parser error", err);
+        if (evt.type !== "event") return;
+        if (evt.data === "[DONE]") {
+          if (buffer) {
+            try {
+              handleNode(JSON.parse(buffer));
+            } catch (err) {
+              console.error("Parser error", err);
+            } finally {
+              buffer = "";
+            }
+          }
+          return;
         }
+        buffer += evt.data;
       });
 
       while (true) {
