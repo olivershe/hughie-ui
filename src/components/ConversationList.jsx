@@ -26,7 +26,10 @@ const ConversationList = ({ conversations, onOpen, onRename, onDelete, modes }) 
               </div>
               {conv.messages && conv.messages.length > 0 && (
                 <div className="text-xs text-gray-500">
-                  {conv.messages[conv.messages.length - 1].content.slice(0, 30)}
+                  {(conv.messages[conv.messages.length - 1].role === 'reasoning'
+                    ? conv.messages[conv.messages.length - 1].text
+                    : conv.messages[conv.messages.length - 1].md
+                  ).slice(0, 30)}
                 </div>
               )}
             </div>

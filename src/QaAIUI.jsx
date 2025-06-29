@@ -23,23 +23,22 @@ import Badge from "./Badge";
 /**
  * @typedef {Object} AssistantMsg
  * @property {number} id
- * @property {"assistant"} type
- * @property {string} content
- * @property {string} timestamp
+ * @property {"assistant"} role
+ * @property {string} md
+ * @property {string} ts
  * @property {number} [confidence]
- *
+*
  * @typedef {Object} UserMsg
  * @property {number} id
- * @property {"user"} type
- * @property {string} content
- * @property {string} timestamp
- *
+ * @property {"user"} role
+ * @property {string} md
+ * @property {string} ts
+*
  * @typedef {Object} ReasoningMsg
  * @property {number} id
- * @property {"reasoning"} type
- * @property {string} content
- * @property {string} timestamp
- *
+ * @property {"reasoning"} role
+ * @property {string} text
+*
  * @typedef {AssistantMsg | UserMsg | ReasoningMsg} Msg
  *
  * @typedef {Object} Conversation
@@ -318,16 +317,15 @@ const QaAIUI = () => {
   const streamResponse = async (userMessage) => {
     setIsGenerating(true);
 
-    const timestamp = new Date().toLocaleTimeString([], {
+    const ts = new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
     const reasoningId = Date.now();
     const reasoningPlaceholder = {
       id: reasoningId,
-      type: "reasoning",
-      content: "",
-      timestamp,
+      role: "reasoning",
+      text: "",
     };
     setMessages((prev) => [...prev, reasoningPlaceholder]);
     setConversations((prev) =>
@@ -336,7 +334,7 @@ const QaAIUI = () => {
           ? {
               ...c,
               messages: [...(c.messages || []), reasoningPlaceholder],
-              time: timestamp,
+              time: ts,
             }
           : c,
       ),
@@ -408,61 +406,58 @@ const QaAIUI = () => {
       }
 
       const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let collected = "";
+
+      let assistantMsg = null;
+
+      const handleNode = (node) => {
+        setMessages((prev) => {
+          const msgs = [...prev];
+          const reasoningIdx = msgs.findIndex((m) => m.id === reasoningId);
+          if (node.reasoning && reasoningIdx !== -1) {
+            msgs[reasoningIdx].text = node.reasoning;
+          }
+          if (node.answer) {
+            if (!assistantMsg) {
+              assistantMsg = {
+                id: Date.now(),
+                role: "assistant",
+                md: node.answer,
+                ts,
+                ...(typeof node.confidence === "number" && {
+                  confidence: node.confidence,
+                }),
+              };
+              msgs.push(assistantMsg);
+            } else {
+              const idx = msgs.findIndex((m) => m.id === assistantMsg.id);
+              if (idx !== -1) {
+                msgs[idx] = {
+                  ...msgs[idx],
+                  md: node.answer,
+                  ...(typeof node.confidence === "number" && {
+                    confidence: node.confidence,
+                  }),
+                };
+              }
+            }
+          }
+          return msgs;
+        });
+      };
+
+      const parser = createParser((evt) => {
+        if (evt.type !== "event" || evt.data === "[DONE]") return;
+        try {
+          handleNode(JSON.parse(evt.data));
+        } catch (err) {
+          console.error("Parser error", err);
+        }
+      });
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop();
-        for (const line of lines) {
-          const cleaned = line.trim();
-          if (!cleaned || cleaned === "data: [DONE]") continue;
-          const json = JSON.parse(cleaned.replace(/^data: /, ""));
-          const content = json.choices?.[0]?.delta?.content;
-          if (content) {
-            collected += content;
-            // Avoid updating conversations during streaming to prevent
-            // duplicating content. We'll sync after streaming completes.
-          }
-        }
-      }
-      try {
-        const parsed = JSON.parse(collected);
-        setMessages((prev) => {
-          const msgs = [...prev];
-          const idx = msgs.findIndex((m) => m.id === reasoningId);
-          if (idx !== -1) {
-            msgs[idx].content = parsed.reasoning || "";
-          }
-          const assistantMsg = {
-            id: Date.now(),
-            type: "assistant",
-            content: parsed.answer || "",
-            timestamp,
-            ...(typeof parsed.confidence === "number" && {
-              confidence: parsed.confidence,
-            }),
-          };
-          msgs.push(assistantMsg);
-          return msgs;
-        });
-      } catch (parseErr) {
-        setMessages((prev) => {
-          const msgs = [...prev];
-          const idx = msgs.findIndex((m) => m.id === reasoningId);
-          if (idx !== -1) {
-            msgs[idx] = {
-              ...msgs[idx],
-              type: "assistant",
-              content: collected,
-            };
-          }
-          return msgs;
-        });
+        parser.feed(new TextDecoder().decode(value));
       }
     } catch (e) {
       console.error("OpenAI API error", {
@@ -479,7 +474,13 @@ const QaAIUI = () => {
       }
       setMessages((prev) => {
         const msgs = [...prev];
-        msgs[msgs.length - 1].content = errorMsg;
+        if (msgs.length) {
+          if (msgs[msgs.length - 1].role === "reasoning") {
+            msgs[msgs.length - 1].text = errorMsg;
+          } else {
+            msgs[msgs.length - 1].md = errorMsg;
+          }
+        }
         return msgs;
       });
       // Error message will be synced to the conversation after streaming
@@ -492,15 +493,15 @@ const QaAIUI = () => {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isGenerating) return;
     if (!apiKey) return;
-    const timestamp = new Date().toLocaleTimeString([], {
+    const ts = new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
     const newMessage = {
       id: Date.now(),
-      type: "user",
-      content: inputValue.trim(),
-      timestamp,
+      role: "user",
+      md: inputValue.trim(),
+      ts,
     };
     setMessages((prev) => [...prev, newMessage]);
     setConversations((prev) =>
@@ -512,7 +513,7 @@ const QaAIUI = () => {
               title: c.messages?.length
                 ? c.title
                 : inputValue.trim().slice(0, 20),
-              time: timestamp,
+              time: ts,
               mode: c.mode || selectedMode,
             }
           : c,

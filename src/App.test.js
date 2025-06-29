@@ -29,7 +29,7 @@ test('opening a conversation updates the mode badge', async () => {
       id: 1,
       title: 'Finance chat',
       messages: [
-        { id: 1, type: 'user', content: 'Hello', timestamp: '10:00' }
+        { id: 1, role: 'user', md: 'Hello', ts: '10:00' }
       ],
       mode: 'finance',
       time: '10:00'
@@ -38,7 +38,7 @@ test('opening a conversation updates the mode badge', async () => {
       id: 2,
       title: 'Legal chat',
       messages: [
-        { id: 2, type: 'assistant', content: 'Hi', timestamp: '11:00' }
+        { id: 2, role: 'assistant', md: 'Hi', ts: '11:00' }
       ],
       mode: 'legal',
       time: '11:00'
