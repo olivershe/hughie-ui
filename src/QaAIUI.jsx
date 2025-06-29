@@ -89,6 +89,7 @@ const QaAIUI = () => {
   const [inputValue, setInputValue] = useState("");
   const [selectedMode, setSelectedMode] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [filter, setFilter] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");
@@ -563,6 +564,7 @@ const QaAIUI = () => {
         minute: "2-digit",
       }),
       mode: selectedMode,
+      pinned: false,
     };
     setConversations((prev) => [newConv, ...prev]);
     setCurrentConversationId(id);
@@ -590,6 +592,12 @@ const QaAIUI = () => {
         return arr;
       });
     }
+  };
+
+  const handleTogglePin = (id) => {
+    setConversations((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, pinned: !c.pinned } : c)),
+    );
   };
 
   const openConversation = (id) => {
@@ -629,12 +637,23 @@ const QaAIUI = () => {
               <h3 className="text-xs font-medium text-gray-600 dark:text-gray-400">
                 Today
               </h3>
+              <input
+                onChange={(e) => setFilter(e.target.value)}
+                value={filter}
+                className="glass w-full mb-2 px-3 py-1.5 rounded-lg text-sm"
+                placeholder="Search…"
+              />
             </div>
             <ConversationList
-              conversations={conversations}
+              conversations={conversations
+                .filter((c) =>
+                  c.title.toLowerCase().includes(filter.toLowerCase()),
+                )
+                .sort((a, b) => Number(b.pinned) - Number(a.pinned))}
               onOpen={openConversation}
               onRename={handleRenameConversation}
               onDelete={handleDeleteConversation}
+              onTogglePin={handleTogglePin}
               modes={modes}
             />
           </motion.aside>
