@@ -44,7 +44,7 @@ const ChatBubble = ({ message, isLast, isGenerating }) => {
       {message.role === "user" ? (
         <div className="flex items-start gap-3 justify-end">
           <div>
-            <div className="glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100">
+            <div className="glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 bg-gradient-to-br from-white/80 to-gray-50/70">
               {message.md}
             </div>
             {message.ts && (
@@ -58,7 +58,7 @@ const ChatBubble = ({ message, isLast, isGenerating }) => {
       ) : (
         <div>
           <div
-            className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${
+            className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed bg-gradient-to-br from-white/80 to-gray-50/70 ${
               isGenerating && isLast ? "blinking-cursor" : ""
             }`}
           >
