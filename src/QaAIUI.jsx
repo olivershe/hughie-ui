@@ -452,9 +452,15 @@ const QaAIUI = () => {
       let buffer = "";
       const parser = createParser((evt) => {
         if (evt.type !== "event") return;
+
+        // Debug: log the full event received from the stream
+        console.log("Parser event received:", evt);
+
         if (evt.data === "[DONE]") {
           if (buffer) {
             try {
+              // Debug: log the buffer content before attempting to parse
+              console.log("Final buffer before parsing:", buffer);
               handleNode(JSON.parse(buffer));
             } catch (err) {
               console.error("Parser error", err);
@@ -464,6 +470,9 @@ const QaAIUI = () => {
           }
           return;
         }
+
+        // Debug: log each chunk of data as it's received
+        console.log("Chunk received:", evt.data);
         buffer += evt.data;
       });
 
