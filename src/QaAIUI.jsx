@@ -378,7 +378,7 @@ const QaAIUI = () => {
             Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            model: "gpt-4o-2024-08-06",
+            model: "gpt-4.1-2025-04-14",
             stream: true,
             response_format: { type: "json_object" },
             logprobs: 5,
