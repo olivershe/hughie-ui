@@ -87,3 +87,30 @@ test('suggestions change when mode is selected', () => {
   fireEvent.click(screen.getByText('Legal'));
   expect(screen.getByText(/Contract dispute/i)).toBeInTheDocument();
 });
+
+test('assistant messages display mode tag', async () => {
+  const conversations = [
+    {
+      id: 1,
+      title: 'Legal chat',
+      messages: [
+        { id: 1, role: 'assistant', md: 'Hi', ts: '10:00', mode: 'legal' }
+      ],
+      mode: 'legal',
+      time: '10:00'
+    }
+  ];
+
+  localStorage.setItem('conversations', JSON.stringify(conversations));
+
+  render(<App />);
+
+  fireEvent.change(screen.getByPlaceholderText('sk-...'), {
+    target: { value: 'test-key' }
+  });
+  fireEvent.click(screen.getByText('Continue'));
+
+  fireEvent.click(screen.getByText('Legal chat'));
+
+  expect(screen.getAllByText('Legal').length).toBeGreaterThan(0);
+});

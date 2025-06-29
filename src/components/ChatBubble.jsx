@@ -3,6 +3,20 @@ import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import ReasoningCard from "../ReasoningCard";
 
+const modeColor = {
+  legal: "bg-emerald-300",
+  finance: "bg-sky-300",
+  medical: "bg-rose-300",
+  agent: "bg-violet-300",
+};
+
+const modeLabel = {
+  legal: "Legal",
+  finance: "Finance",
+  medical: "Medical",
+  agent: "Agent",
+};
+
 export const renderAssistantContent = (content) => {
   if (!content) return null;
   return content.split("\n").map((line, idx) => {
@@ -56,7 +70,7 @@ const ChatBubble = ({ message, isLast, isGenerating }) => {
           </div>
         </div>
       ) : (
-        <div>
+        <div className="relative">
           <div
             className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed bg-gradient-to-br from-white/80 to-gray-50/70 ${
               isGenerating && isLast ? "blinking-cursor" : ""
@@ -75,6 +89,13 @@ const ChatBubble = ({ message, isLast, isGenerating }) => {
               )
             )}
           </div>
+          {message.mode && (
+            <span
+              className={`absolute top-0 right-0 text-[11px] px-2 py-[2px] rounded-full ${modeColor[message.mode]}`}
+            >
+              {modeLabel[message.mode]}
+            </span>
+          )}
           {message.ts && <div className="text-xs text-gray-500 mt-1">{message.ts}</div>}
         </div>
       )}
