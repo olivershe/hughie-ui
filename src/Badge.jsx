@@ -1,27 +1,23 @@
 import React from "react";
-import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { Check, AlertTriangle, HelpCircle } from "lucide-react";
 
-const Badge = ({ score }) => {
+export default function Badge({ score }) {
   if (typeof score !== "number") return null;
 
-  let Icon = CheckCircle;
-  let color = "bg-emerald-500";
-
-  if (score < 0.4) {
-    Icon = XCircle;
-    color = "bg-rose-500";
-  } else if (score < 0.7) {
-    Icon = AlertTriangle;
-    color = "bg-amber-400";
-  }
+  const lvl = score >= 0.75 ? "high" : score >= 0.4 ? "med" : "low";
+  const Icon = { high: Check, med: AlertTriangle, low: HelpCircle }[lvl];
+  const cls = {
+    high: "bg-emerald-500",
+    med: "bg-amber-400",
+    low: "bg-rose-500",
+  }[lvl];
 
   return (
     <div
-      className={`absolute -top-2 -right-2 w-5 h-5 rounded-full text-white flex items-center justify-center ${color}`}
+      className={`absolute -top-1 -right-1 h-5 w-5 rounded-full ring-2 ring-white shadow flex items-center justify-center ${cls}`}
+      title={`Model confidence ${(score * 100).toFixed(0)}%`}
     >
-      <Icon className="w-3 h-3" />
+      <Icon className="w-[10px] h-[10px]" strokeWidth={2} />
     </div>
   );
-};
-
-export default Badge;
+}

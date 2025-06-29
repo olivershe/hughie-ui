@@ -761,14 +761,39 @@ const QaAIUI = () => {
                       </div>
                     </div>
                   )}
-                  {messages.map((message, index) => (
-                    <ChatBubble
-                      key={message.id}
-                      message={message}
-                      isGenerating={isGenerating}
-                      isLast={index === messages.length - 1}
-                    />
-                  ))}
+                  {(() => {
+                    const lastIdx = (() => {
+                      for (let i = messages.length - 1; i >= 0; i--) {
+                        if (messages[i].role !== "reasoning") return i;
+                      }
+                      return -1;
+                    })();
+                    return messages.map((message, index) => {
+                      if (message.role === "reasoning") return null;
+                      const reasoningText =
+                        messages[index - 1]?.role === "reasoning"
+                          ? messages[index - 1].text
+                          : null;
+                      return (
+                        <React.Fragment key={message.id}>
+                          <div className="relative">
+                            <ChatBubble
+                              message={message}
+                              isGenerating={isGenerating}
+                              isLast={index === lastIdx}
+                            />
+                            {message.role === "assistant" &&
+                              typeof message.confidence === "number" && (
+                                <Badge score={message.confidence} />
+                              )}
+                          </div>
+                          {message.role === "assistant" && reasoningText && (
+                            <ReasoningCard text={reasoningText} />
+                          )}
+                        </React.Fragment>
+                      );
+                    });
+                  })()}
                   <div ref={messagesEndRef} />
                 </div>
               </div>
