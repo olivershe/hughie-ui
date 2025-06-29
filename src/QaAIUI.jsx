@@ -2,20 +2,19 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createParser } from "eventsource-parser";
 import {
-  Paperclip,
   Menu,
   Plus,
-  User,
   Scale,
   DollarSign,
   Stethoscope,
   Cpu,
   ArrowUp,
-  Edit3,
-  Trash2,
   Sun,
   Moon,
 } from "lucide-react";
+import PromptCard from "./components/PromptCard";
+import ConversationList from "./components/ConversationList";
+import ChatBubble from "./components/ChatBubble";
 
 import ReasoningCard from "./ReasoningCard";
 
@@ -83,46 +82,6 @@ Additional rules:
 - Be neutral and accurate in tone.`;
 
 
-const PromptCard = ({ icon: Icon, title, subtitle }) => (
-  <div className="w-36 h-36 p-2.5 rounded-3xl glass flex flex-col justify-between">
-    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gray-900/90 text-white">
-      <Icon strokeWidth={1.6} className="h-[10px] w-[10px]" />
-    </span>
-    <div className="overflow-hidden">
-      <h3 className="text-sm font-medium tracking-tight text-gray-900 dark:text-white">
-        {title}
-      </h3>
-      <p className="text-xs text-gray-500 line-clamp-1">{subtitle}</p>
-    </div>
-  </div>
-);
-
-const renderAssistantContent = (content) => {
-  if (!content) return null;
-  return content.split("\n").map((line, idx) => {
-    const trimmed = line.trim();
-    if (trimmed === "") return <br key={idx} />;
-    if (/^\d+\.\s/.test(trimmed)) {
-      return (
-        <div key={idx} className="mb-1 font-sans">
-          {trimmed}
-        </div>
-      );
-    }
-    if (trimmed.startsWith("- Reasoning:")) {
-      return (
-        <div key={idx} className="ml-4 text-sm text-gray-500 font-sans">
-          {trimmed}
-        </div>
-      );
-    }
-    return (
-      <div key={idx} className="font-sans">
-        {trimmed}
-      </div>
-    );
-  });
-};
 
 const QaAIUI = () => {
   /** @type {[Msg[], React.Dispatch<React.SetStateAction<Msg[]>>]} */
@@ -606,6 +565,29 @@ const QaAIUI = () => {
     setMessages([]);
   };
 
+  const handleRenameConversation = (id) => {
+    const conv = conversations.find((c) => c.id === id);
+    const title = window.prompt("Rename conversation", conv?.title);
+    if (title) {
+      setConversations((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, title } : c)),
+      );
+    }
+  };
+
+  const handleDeleteConversation = (id) => {
+    if (window.confirm("Delete conversation?")) {
+      setConversations((prev) => {
+        const arr = prev.filter((c) => c.id !== id);
+        if (currentConversationId === id) {
+          setMessages([]);
+          setCurrentConversationId(arr[0]?.id || null);
+        }
+        return arr;
+      });
+    }
+  };
+
   const openConversation = (id) => {
     const conv = conversations.find((c) => c.id === id);
     if (!conv) return;
@@ -644,84 +626,13 @@ const QaAIUI = () => {
                 Today
               </h3>
             </div>
-            <div>
-              {conversations.map((conv) => (
-                <div
-                  key={conv.id}
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer transition-colors group"
-                >
-                  <div
-                    className="flex items-center justify-between"
-                    onClick={() => openConversation(conv.id)}
-                  >
-                    <div>
-                      <div className="text-sm font-medium flex items-center gap-2">
-                        {conv.mode &&
-                          React.createElement(
-                            modes.find((m) => m.id === conv.mode)?.icon,
-                            {
-                              className:
-                                "w-3.5 h-3.5 text-gray-600 dark:text-gray-400",
-                            },
-                          )}
-                        {conv.title}
-                      </div>
-                      {conv.messages && conv.messages.length > 0 && (
-                        <div className="text-xs text-gray-500">
-                          {conv.messages[conv.messages.length - 1].content.slice(
-                            0,
-                            30,
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const title = window.prompt(
-                            "Rename conversation",
-                            conv.title,
-                          );
-                          if (title)
-                            setConversations((prev) =>
-                              prev.map((c) =>
-                                c.id === conv.id ? { ...c, title } : c,
-                              ),
-                            );
-                        }}
-                        className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm("Delete conversation?")) {
-                            setConversations((prev) => {
-                              const arr = prev.filter((c) => c.id !== conv.id);
-                              if (currentConversationId === conv.id) {
-                                setMessages([]);
-                                setCurrentConversationId(arr[0]?.id || null);
-                              }
-                              return arr;
-                            });
-                          }
-                        }}
-                        className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  {conv.time && (
-                    <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      {conv.time}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <ConversationList
+              conversations={conversations}
+              onOpen={openConversation}
+              onRename={handleRenameConversation}
+              onDelete={handleDeleteConversation}
+              modes={modes}
+            />
           </motion.aside>
         )}
       </AnimatePresence>
@@ -849,76 +760,14 @@ const QaAIUI = () => {
                       </div>
                     </div>
                   )}
-                  {messages.map((message, index) => {
-                    if (message.type === "reasoning") return null;
-                    const next = messages[index + 1];
-                    const showReasoning =
-                      message.type === "assistant" && next?.type === "reasoning";
-                    return (
-                      <React.Fragment key={message.id}>
-                        <motion.div
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ type: "spring", stiffness: 300, damping: 35 }}
-                          className={
-                            message.type === "user" ? "flex justify-end mb-8" : "mb-8"
-                          }
-                        >
-                          {message.type === "user" ? (
-                            <div className="flex items-start gap-3 justify-end">
-                              <div>
-                                <div className="glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100">
-                                  {message.content}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1 text-right">
-                                  {message.timestamp}
-                                </div>
-                              </div>
-                              <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                                <User className="w-5 h-5 text-gray-700" />
-                              </div>
-                            </div>
-                          ) : (
-                            <div>
-                              <div
-                                className={`glass px-4 py-2.5 rounded-2xl text-gray-900 dark:text-gray-100 leading-relaxed ${
-                                  isGenerating && index === messages.length - 1
-                                    ? "blinking-cursor"
-                                    : ""
-                                }`}
-                              >
-                                {message.content
-                                  ? renderAssistantContent(message.content)
-                                  : isGenerating &&
-                                    index === messages.length - 1 && (
-                                      <div className="flex gap-1">
-                                        <div
-                                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                          style={{ animationDelay: "0ms" }}
-                                        ></div>
-                                        <div
-                                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                          style={{ animationDelay: "150ms" }}
-                                        ></div>
-                                        <div
-                                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                          style={{ animationDelay: "300ms" }}
-                                        ></div>
-                                      </div>
-                                    )}
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {message.timestamp}
-                              </div>
-                            </div>
-                          )}
-                        </motion.div>
-                        {showReasoning && (
-                          <ReasoningCard key={`reasoning-${next.id}`} text={next.content} />
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
+                  {messages.map((message, index) => (
+                    <ChatBubble
+                      key={message.id}
+                      message={message}
+                      isGenerating={isGenerating}
+                      isLast={index === messages.length - 1}
+                    />
+                  ))}
                   <div ref={messagesEndRef} />
                 </div>
               </div>
