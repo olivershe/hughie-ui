@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "title": "New chat",
+    "messages": [
+      { "id": 1, "role": "user", "md": "Hello", "ts": "10:00" }
+    ],
+    "mode": null,
+    "time": "10:00"
+  }
+]
